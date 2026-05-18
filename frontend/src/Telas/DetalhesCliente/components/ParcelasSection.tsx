@@ -37,9 +37,8 @@ export function ParcelasSection({ faturas, onPagar }: ParcelasSectionProps) {
             <div className="fatura-header">
               <h3>Contrato #{fatura.id_fatura}</h3>
               <p className="fatura-info">
-                Valor:{" "}
-                <strong>R$ {fatura.valor_emprestimo.toFixed(2)}</strong> |
-                Parcelas: <strong>{fatura.qtd_parcelas}x</strong>
+                Valor: <strong>R$ {fatura.valor_emprestimo.toFixed(2)}</strong>{" "}
+                | Parcelas: <strong>{fatura.qtd_parcelas}x</strong>
               </p>
             </div>
 
@@ -74,9 +73,8 @@ export function ParcelasSection({ faturas, onPagar }: ParcelasSectionProps) {
                           className="btn-pagar"
                           onClick={() => onPagar(parcela.id_cobranca)}
                           disabled={
-                            (
-                              parcela.status_cobranca || ""
-                            ).toUpperCase() === "PAGO"
+                            (parcela.status_cobranca || "").toUpperCase() ===
+                            "PAGO"
                           }
                         >
                           {(parcela.status_cobranca || "").toUpperCase() ===
