@@ -118,18 +118,18 @@
 }
 
 .dado-valor.status.status-ativo {
-  background: #d1fae5;
-  color: #065f46;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .dado-valor.status.status-inativo {
   background: #fee2e2;
-  color: #7f1d1d;
+  color: #991b1b;
 }
 
 .dado-valor.status.status-pendente {
   background: #fef3c7;
-  color: #92400e;
+  color: #e69824;
 }
 
 /* Seção de Resumo */
