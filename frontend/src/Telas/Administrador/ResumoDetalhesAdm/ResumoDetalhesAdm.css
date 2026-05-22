@@ -1,0 +1,46 @@
+.resumo-section {
+  background: transparent;
+  padding: 20px 30px 0 30px; /* removeu padding-bottom */
+  margin-bottom: 0;
+}
+
+.resumo-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.resumo-card {
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: none;
+  text-align: center;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.07),
+    0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resumo-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.resumo-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.resumo-valor {
+  font-size: 32px;
+  font-weight: 700;
+  color: #134cc8;
+}

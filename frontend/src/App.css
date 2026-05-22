@@ -5,7 +5,16 @@
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-body {
-  background-color: rgba(149, 149, 149, 0.188);
+html {
+  overflow-y: scroll; /* garante que o scroll existe */
+  scrollbar-width: none; /* Firefox — esconde no html */
 }
 
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Opera */
+}
+
+body {
+  background-color: rgba(149, 149, 149, 0.188);
+  min-height: 100vh;
+}
