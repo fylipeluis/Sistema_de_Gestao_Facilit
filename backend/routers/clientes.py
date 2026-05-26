@@ -3,7 +3,7 @@ from mysql.connector import Error
 from backend.database.connection import conectar
 from backend.schemas.cliente import ClienteUpdate, ClienteAtivarComFatura
 
-router = APIRouter(tags=["clientes"])
+router = APIRouter(prefix="/clientes", tags=["clientes"])
 
 @router.post("/webhook-forms")
 async def receber_dados_forms(request: Request):
@@ -27,18 +27,24 @@ async def receber_dados_forms(request: Request):
             connection.close()
 
 
-@router.get("/clientes")
+@router.get("/")
 def listar_clientes():
-    connection = conectar()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM clientes")
-    resultados = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return resultados
+    connection = None
+    cursor = None
+    try:
+        connection = conectar()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM clientes")
+        return cursor.fetchall()
+    except Error as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
 
 
-@router.put("/clientes/{id}")
+@router.put("/{id}")
 def atualizar_cliente(id: int, dados: ClienteUpdate):
     connection = None
     cursor = None
@@ -69,7 +75,7 @@ def atualizar_cliente(id: int, dados: ClienteUpdate):
             connection.close()
 
 
-@router.delete("/clientes/{id}")
+@router.delete("/{id}")
 def excluir_cliente(id: int):
     connection = None
     cursor = None
@@ -91,24 +97,18 @@ def excluir_cliente(id: int):
             connection.close()
 
 
-@router.post("/clientes/{id}/ativar-com-fatura")
+@router.post("/{id}/ativar-com-fatura")
 def ativar_cliente_com_fatura(id: int, dados: ClienteAtivarComFatura):
-    """
-    Ativa um cliente (muda status para ATIVO) e cria uma fatura com cobranças.
-    Fluxo: Cliente PENDENTE -> (preenche dados) -> Cliente ATIVO
-    """
     connection = None
     cursor = None
     try:
         connection = conectar()
         cursor = connection.cursor()
 
-        # Verifica se cliente existe
         cursor.execute("SELECT id_cliente FROM clientes WHERE id_cliente = %s", (id,))
         if not cursor.fetchone():
             raise HTTPException(status_code=404, detail="Cliente não encontrado")
 
-        # Cria a fatura
         cursor.execute(
             """
             INSERT INTO adm_faturas (id_cliente, valor_emprestimo, qtd_parcelas, inicio_cobranca)
@@ -118,7 +118,6 @@ def ativar_cliente_com_fatura(id: int, dados: ClienteAtivarComFatura):
         )
         id_fatura = cursor.lastrowid
 
-        # Gera as cobranças automaticamente
         valor_parcela = round(dados.valor_emprestimo / dados.qtd_parcelas, 2)
         for i in range(1, dados.qtd_parcelas + 1):
             cursor.execute(
@@ -129,7 +128,6 @@ def ativar_cliente_com_fatura(id: int, dados: ClienteAtivarComFatura):
                 (id, id_fatura, valor_parcela, i),
             )
 
-        # Atualiza status do cliente para ATIVO
         cursor.execute(
             "UPDATE clientes SET status_cliente = 'ATIVO' WHERE id_cliente = %s",
             (id,),
@@ -138,7 +136,8 @@ def ativar_cliente_com_fatura(id: int, dados: ClienteAtivarComFatura):
         connection.commit()
         return {"status": "sucesso", "mensagem": "Cliente ativado com fatura criada", "id_fatura": id_fatura}
     except Error as e:
-        connection.rollback()
+        if connection:
+            connection.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if connection and connection.is_connected():
