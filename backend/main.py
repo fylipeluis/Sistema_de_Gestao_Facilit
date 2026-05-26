@@ -1,12 +1,18 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 from backend.routers import clientes, faturas
 
-app = FastAPI()
+load_dotenv()
+
+app = FastAPI(title="Facilit API", version="1.0.0")
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -14,3 +20,7 @@ app.add_middleware(
 
 app.include_router(clientes.router)
 app.include_router(faturas.router)
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
