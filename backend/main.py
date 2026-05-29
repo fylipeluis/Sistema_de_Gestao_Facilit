@@ -24,3 +24,14 @@ app.include_router(faturas.router)
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+
+@app.get("/debug-db")
+def debug_db():
+    return {
+        "host": os.getenv("MYSQLHOST"),
+        "database": os.getenv("MYSQLDATABASE"),
+        "user": os.getenv("MYSQLUSER"),
+        "port": os.getenv("MYSQLPORT")
+    }
