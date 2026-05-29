@@ -44,6 +44,7 @@ export function ModalEditarCliente({
   async function handleSalvar() {
     try {
       setCarregando(true);
+      if (!cliente) return;
 
       if (isPendente) {
         // Cliente PENDENTE: ativa com fatura
