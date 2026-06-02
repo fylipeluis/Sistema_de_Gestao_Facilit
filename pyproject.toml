@@ -1,14 +1,7 @@
-[project]
-name = "facilit"
-version = "0.1.0"
-requires-python = ">=3.9"
-dependencies = [
-    "fastapi",
-    "mysql-connector-python",
-    "python-dotenv",
-    "uvicorn",
-    "python-dateutil",
-]
+[build]
+  base = "frontend"
+  command = "npm ci && npm run build"
+  publish = "dist"
 
-[tool.vercel]
-entrypoint = "backend.main:app"
+[build.environment]
+  NODE_VERSION = "24"
