@@ -1,6 +1,6 @@
 import type { Cliente, ClienteUpdatePayload } from "../types/cliente";
 
-const BASE_URL = `${import.meta.env.VITE_API_URL}/clientes`;
+const BASE_URL = `${import.meta.env.VITE_API_URL ?? "http://localhost:8000"}/api/clientes` as const;
 
 export async function fetchClientes(): Promise<Cliente[]> {
   const response = await fetch(BASE_URL);
