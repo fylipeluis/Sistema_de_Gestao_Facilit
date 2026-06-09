@@ -1,6 +1,6 @@
 import type { Fatura } from "../types/fatura";
 
-const BASE_URL = `${import.meta.env.VITE_API_URL}/faturas`;
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api/faturas`;
 
 export async function fetchContratosPorCliente(
   idCliente: number
