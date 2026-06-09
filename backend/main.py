@@ -18,20 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(clientes.router)
-app.include_router(faturas.router)
+app.include_router(clientes.router, prefix="/api")
+app.include_router(faturas.router, prefix="/api")
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-
-@app.get("/debug-db")
-def debug_db():
-    return {
-        "host": os.getenv("MYSQLHOST"),
-        "database": os.getenv("MYSQLDATABASE"),
-        "user": os.getenv("MYSQLUSER"),
-        "port": os.getenv("MYSQLPORT")
-    }

@@ -30,7 +30,7 @@ def obter_contratos_cliente(id_cliente: int):
             cursor.execute(
                 """
                 SELECT id_cobranca, numero_parcela, valor_cobranca,
-                COALESCE(status_cobranca, 'Pendente') as status_cobranca
+                COALESCE(status, 'Pendente') as status_cobranca
                 FROM cobrancas
                 WHERE id_fatura = %s
                 ORDER BY numero_parcela ASC
