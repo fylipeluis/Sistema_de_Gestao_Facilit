@@ -1,9 +1,9 @@
 import type { Cliente, ClienteUpdatePayload } from "../types/cliente";
 
-const BASE_URL = `${import.meta.env.VITE_API_URL ?? "https://facilitsolucoesfinanceiras1-production.up.railway.app"}/api/clientes/`;
+const BASE_URL = `${import.meta.env.VITE_API_URL ?? "https://facilitsolucoesfinanceiras1-production.up.railway.app"}/api/clientes`;
 
 export async function fetchClientes(): Promise<Cliente[]> {
-  const response = await fetch(BASE_URL);
+  const response = await fetch(`${BASE_URL}/`);
   if (!response.ok)
     throw new Error("Erro na requisição: " + response.statusText);
   return response.json();
