@@ -3,3 +3,4 @@ mysql-connector-python
 python-dotenv
 uvicorn
 python-dateutil
+apscheduler==3.10.4
