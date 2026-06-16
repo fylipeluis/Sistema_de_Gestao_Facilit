@@ -99,30 +99,29 @@ def buscar_parcelas_do_dia():
         cursor = connection.cursor(dictionary=True)
 
         cursor.execute(
-            """
-            SELECT
-                co.id_cobranca,
-                co.numero_parcela,
-                co.valor_cobranca,
-                co.pix_code,
-                co.status,
-                co.data_vencimento,
-                cl.nome_completo,
-                cl.telefone,
-                f.qtd_parcelas
-            FROM cobrancas co
-            JOIN adm_faturas f  ON co.id_fatura   = f.id_fatura
-            JOIN clientes   cl  ON co.id_cliente  = cl.id_cliente
-            WHERE
-                cl.status_cliente = 'ATIVO'
-                AND co.status IN ('PENDENTE', 'ATRASADO')
-                AND (co.ultima_mensagem IS NULL OR DATE(co.ultima_mensagem) < CURDATE())
-                AND (
-                    co.data_vencimento = CURDATE()      -- vence hoje (PENDENTE)
-                    OR co.data_vencimento < CURDATE()   -- já venceu (ATRASADO)
-                )
-            ORDER BY co.data_vencimento ASC
-            """
+        """
+        SELECT
+            co.id_cobranca,
+            co.numero_parcela,
+            co.valor_cobranca,
+            co.pix_code,
+            co.status,
+            co.data_vencimento,
+            cl.nome_completo,
+            cl.telefone,
+            f.qtd_parcelas
+        FROM cobrancas co
+        JOIN adm_faturas f  ON co.id_fatura   = f.id_fatura
+        JOIN clientes   cl  ON co.id_cliente  = cl.id_cliente
+        WHERE
+            cl.status_cliente = 'ATIVO'
+            AND co.status IN ('PENDENTE', 'ATRASADO')
+            AND (co.ultima_mensagem IS NULL OR DATE(co.ultima_mensagem) < CURDATE())
+            AND co.data_vencimento <= CURDATE()
+        GROUP BY co.id_cobranca
+        ORDER BY co.data_vencimento ASC
+        
+        """
         )
         return cursor.fetchall()
 
@@ -188,6 +187,7 @@ def rotina_diaria():
             )
             if enviado:
                 registrar_mensagem_enviada(parcela["id_cobranca"])
+                logger.info(f"[scheduler] ultima_mensagem registrada para parcela {parcela['id_cobranca']}")
         except Exception as e:
             logger.error(f"[scheduler] Falha ao notificar parcela {parcela['id_cobranca']}: {e}")
             # Continua para a próxima — falha em 1 não para as demais

@@ -63,9 +63,9 @@ export function ParcelasSection({ faturas, onPagar }: ParcelasSectionProps) {
                       </td>
                       <td>
                         <span
-                          className={`status-badge ${getStatusClass(parcela.status_cobranca)}`}
+                          className={`status-badge ${getStatusClass(parcela.status)}`}
                         >
-                          {getStatusTexto(parcela.status_cobranca)}
+                          {getStatusTexto(parcela.status)}
                         </span>
                       </td>
                       <td>
@@ -73,11 +73,11 @@ export function ParcelasSection({ faturas, onPagar }: ParcelasSectionProps) {
                           className="btn-pagar"
                           onClick={() => onPagar(parcela.id_cobranca)}
                           disabled={
-                            (parcela.status_cobranca || "").toUpperCase() ===
+                            (parcela.status || "").toUpperCase() ===
                             "PAGO"
                           }
                         >
-                          {(parcela.status_cobranca || "").toUpperCase() ===
+                          {(parcela.status || "").toUpperCase() ===
                           "PAGO"
                             ? "Pago"
                             : "Pagar"}

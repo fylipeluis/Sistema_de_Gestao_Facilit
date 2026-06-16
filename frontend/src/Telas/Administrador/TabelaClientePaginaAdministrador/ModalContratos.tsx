@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react";
-import type { Fatura } from "../../../types/fatura";
-import { fetchContratosPorCliente } from "../../../api/faturaApi";
+import type { Fatura, Cobranca, ResultadoPagamento } from "../../../types/fatura";
+import { fetchContratosPorCliente, marcarParcelaPaga } from "../../../api/faturaApi";
 import "./ModalContratos.css";
 
 interface Props {
   clienteId: number | null;
+  nomeCliente?: string;
   onFechar: () => void;
+  onClienteInativado?: () => void; // callback para atualizar lista quando cliente for inativado
 }
 
-export function ModalContratos({ clienteId, onFechar }: Props) {
+export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInativado }: Props) {
   const [contratos, setContratos] = useState<Fatura[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [pagando, setPagando] = useState<number | null>(null); // id_cobranca sendo pago
 
   useEffect(() => {
-    if (clienteId) {
-      console.log("Carregando contratos para cliente:", clienteId);
-      carregarContratos();
-    }
+    if (clienteId) carregarContratos();
   }, [clienteId]);
 
   async function carregarContratos() {
@@ -25,27 +25,59 @@ export function ModalContratos({ clienteId, onFechar }: Props) {
       setCarregando(true);
       setErro(null);
       const dados = await fetchContratosPorCliente(clienteId!);
-      console.log("Contratos recebidos:", dados);
       setContratos(dados);
-    } catch (err) {
-      console.error("Erro ao buscar contratos:", err);
+    } catch {
       setErro("Erro ao carregar contratos");
     } finally {
       setCarregando(false);
     }
   }
 
-  function ordenarParcelas(parcelas: typeof contratos[0]["parcelas"]) {
+  async function handlePagar(idCobranca: number) {
+    try {
+      setPagando(idCobranca);
+      const resultado = await marcarParcelaPaga(idCobranca) as ResultadoPagamento;
+      
+      // Se o cliente foi inativado, avisa o componente pai
+      if (resultado?.cliente_inativado) {
+        onClienteInativado?.();
+        onFechar();
+        return;
+      }
+
+      // Recarrega os contratos para refletir o novo status
+      await carregarContratos();
+    } catch (err: any) {
+      alert(err.message || "Erro ao marcar parcela como paga");
+    } finally {
+      setPagando(null);
+    }
+  }
+
+  function getStatusClass(status: string): string {
+    switch (status?.toUpperCase()) {
+      case "PAGO":      return "status-parcela pago";
+      case "ATRASADO":  return "status-parcela atrasado";
+      case "CANCELADO": return "status-parcela cancelado";
+      default:          return "status-parcela pendente";
+    }
+  }
+
+  function formatarData(data: string | null): string {
+    if (!data) return "—";
+    return new Date(data).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+  }
+
+  function ordenarParcelas(parcelas: Cobranca[]) {
+    const ordem: Record<string, number> = {
+      ATRASADO: 0,
+      PENDENTE: 1,
+      PAGO: 2,
+      CANCELADO: 3,
+    };
     return [...parcelas].sort((a, b) => {
-      const statusA = a.status_cobranca || "Pendente";
-      const statusB = b.status_cobranca || "Pendente";
-
-      // Pendente vem primeiro
-      if (statusA === "Pendente" && statusB !== "Pendente") return -1;
-      if (statusA !== "Pendente" && statusB === "Pendente") return 1;
-
-      // Se ambos têm o mesmo status, ordena pelo número da parcela
-      return a.numero_parcela - b.numero_parcela;
+      const diff = (ordem[a.status?.toUpperCase()] ?? 1) - (ordem[b.status?.toUpperCase()] ?? 1);
+      return diff !== 0 ? diff : a.numero_parcela - b.numero_parcela;
     });
   }
 
@@ -55,20 +87,14 @@ export function ModalContratos({ clienteId, onFechar }: Props) {
     <div className="modal-contratos">
       <div className="modal-content-contratos">
         <div className="modal-header-contratos">
-          <h2>Contratos e Parcelas</h2>
-          <span className="fechar-contratos" onClick={onFechar}>
-            ✕
-          </span>
+          <h2>Contratos{nomeCliente ? ` — ${nomeCliente}` : ""}</h2>
+          <span className="fechar-contratos" onClick={onFechar}>✕</span>
         </div>
 
         {carregando && <p className="carregando">Carregando contratos...</p>}
-
         {erro && <p className="erro">{erro}</p>}
-
         {!carregando && contratos.length === 0 && (
-          <p className="sem-contratos">
-            Nenhum contrato encontrado para este cliente.
-          </p>
+          <p className="sem-contratos">Nenhum contrato encontrado.</p>
         )}
 
         {!carregando &&
@@ -77,19 +103,9 @@ export function ModalContratos({ clienteId, onFechar }: Props) {
               <div className="contrato-header">
                 <h3>Contrato #{contrato.id_fatura}</h3>
                 <div className="contrato-info">
-                  <span>
-                    <strong>Valor Total:</strong> R${" "}
-                    {contrato.valor_emprestimo.toFixed(2)}
-                  </span>
-                  <span>
-                    <strong>Parcelas:</strong> {contrato.qtd_parcelas}
-                  </span>
-                  <span>
-                    <strong>Início:</strong>{" "}
-                    {new Date(contrato.inicio_cobranca).toLocaleDateString(
-                      "pt-BR",
-                    )}
-                  </span>
+                  <span><strong>Valor Total:</strong> R$ {contrato.valor_emprestimo.toFixed(2)}</span>
+                  <span><strong>Parcelas:</strong> {contrato.qtd_parcelas}</span>
+                  <span><strong>Início:</strong> {formatarData(contrato.inicio_cobranca)}</span>
                 </div>
               </div>
 
@@ -98,24 +114,36 @@ export function ModalContratos({ clienteId, onFechar }: Props) {
                   <thead>
                     <tr>
                       <th>Parcela</th>
+                      <th>Vencimento</th>
                       <th>Valor</th>
+                      <th>Último Envio</th>
                       <th>Status</th>
+                      <th>Ação</th>
                     </tr>
                   </thead>
                   <tbody>
                     {ordenarParcelas(contrato.parcelas).map((parcela) => (
                       <tr key={parcela.id_cobranca}>
                         <td>#{parcela.numero_parcela}</td>
+                        <td>{formatarData(parcela.data_vencimento)}</td>
                         <td>R$ {parcela.valor_cobranca.toFixed(2)}</td>
+                        <td>{formatarData(parcela.ultima_mensagem)}</td>
                         <td>
-                          <span
-                            className={`status-parcela ${
-                              parcela.status_cobranca?.toLowerCase() ||
-                              "pendente"
-                            }`}
-                          >
-                            {parcela.status_cobranca || "Pendente"}
+                          <span className={getStatusClass(parcela.status)}>
+                            {parcela.status || "PENDENTE"}
                           </span>
+                        </td>
+                        <td>
+                          {parcela.status?.toUpperCase() !== "PAGO" &&
+                           parcela.status?.toUpperCase() !== "CANCELADO" && (
+                            <button
+                              className="btn-pagar"
+                              onClick={() => handlePagar(parcela.id_cobranca)}
+                              disabled={pagando === parcela.id_cobranca}
+                            >
+                              {pagando === parcela.id_cobranca ? "..." : "Pago"}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
