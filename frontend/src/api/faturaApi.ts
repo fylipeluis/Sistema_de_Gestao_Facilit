@@ -12,3 +12,18 @@ export async function fetchContratosPorCliente(
 
   return response.json();
 }
+
+export async function marcarParcelaPaga(
+  idCobranca: number
+): Promise<{ status: string; mensagem: string; cliente_inativado: boolean }> {
+  const response = await fetch(`${BASE_URL}/parcelas/${idCobranca}/pagar`, {
+    method: "PATCH",
+  });
+
+  if (!response.ok) {
+    const erro = await response.json();
+    throw new Error(erro.detail || "Erro ao marcar parcela como paga");
+  }
+
+  return response.json();
+}

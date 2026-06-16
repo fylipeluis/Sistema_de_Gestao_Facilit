@@ -2,7 +2,9 @@ export interface Cobranca {
   id_cobranca: number;
   numero_parcela: number;
   valor_cobranca: number;
-  status_cobranca?: string;
+  status: string;
+  data_vencimento: string | null;
+  ultima_mensagem: string | null;
 }
 
 export interface Fatura {
@@ -12,4 +14,10 @@ export interface Fatura {
   qtd_parcelas: number;
   inicio_cobranca: string;
   parcelas: Cobranca[];
+}
+
+export interface ResultadoPagamento {
+  status: string;
+  mensagem: string;
+  cliente_inativado: boolean;
 }
