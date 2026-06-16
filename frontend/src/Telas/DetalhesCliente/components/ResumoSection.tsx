@@ -15,7 +15,7 @@ export function ResumoSection({ faturas }: ResumoSectionProps) {
 
   const valorQuitado = faturas
     .flatMap((f) => f.parcelas)
-    .filter((p) => p.status_cobranca === "PAGO")
+    .filter((p) => p.status === "PAGO")
     .reduce((acc, p) => acc + p.valor_cobranca, 0);
 
   const totalParcelas = faturas.reduce((acc, f) => acc + f.parcelas.length, 0);
@@ -23,7 +23,7 @@ export function ResumoSection({ faturas }: ResumoSectionProps) {
     (acc, f) =>
       acc +
       f.parcelas.filter(
-        (p) => (p.status_cobranca || "").toUpperCase() === "PAGO",
+        (p) => (p.status || "").toUpperCase() === "PAGO",
       ).length,
     0,
   );
