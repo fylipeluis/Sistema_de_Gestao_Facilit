@@ -3,7 +3,9 @@ import "./App.css";
 
 import PaginaAdministrador from "./Telas/Administrador/Adm";
 import { PaginaDeLogin } from "./Telas/Login/PaginaDeLogin";
+import { AdminLogin } from "./Telas/Login/AdmLogin/AdminLogin";
 import { DetalhesCliente } from "./Telas/DetalhesCliente/DetalhesCliente";
+import { AdminRoute } from "./components/AdminRoute";
 
 export default function App() {
   return (
@@ -13,7 +15,16 @@ export default function App() {
 
         <Route path="/login" element={<PaginaDeLogin />} />
 
-        <Route path="/administrador" element={<PaginaAdministrador />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        <Route
+          path="/administrador"
+          element={
+            <AdminRoute>
+              <PaginaAdministrador />
+            </AdminRoute>
+          }
+        />
 
         <Route path="/cliente" element={<DetalhesCliente />} />
       </Routes>
