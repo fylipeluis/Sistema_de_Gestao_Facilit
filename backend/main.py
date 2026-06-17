@@ -1,11 +1,12 @@
 import os
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
-from backend.routers import clientes, faturas
+from backend.routers import clientes, faturas, auth
+from backend.routers.auth import verificar_token
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -17,20 +18,13 @@ scheduler = BackgroundScheduler()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Importa aqui para evitar circular import
     from backend.scheduler import rotina_diaria
 
-    # Roda todo dia às 08h (horário do servidor — Railway usa UTC, ajuste se precisar)
-    #scheduler.add_job(rotina_diaria, "cron", hour=8, minute=0, id="rotina_diaria")
-
-    # DEV: descomentar a linha abaixo para testar agora sem esperar às 08h
-    
-    scheduler.add_job(rotina_diaria, "date", id="rotina_diaria_teste")
-
+    scheduler.add_job(rotina_diaria, "cron", hour=8, minute=0, id="rotina_diaria")
     scheduler.start()
     logging.info("[scheduler] APScheduler iniciado")
 
-    yield  # app rodando
+    yield
 
     scheduler.shutdown(wait=False)
     logging.info("[scheduler] APScheduler encerrado")
@@ -53,16 +47,20 @@ app.add_middleware(
 
 app.include_router(clientes.router, prefix="/api")
 app.include_router(faturas.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "versao": "TESTE_CORS_2026"}
+    return {"status": "ok", "versao": "FACILIT_V2"}
 
 
-# Endpoint para disparar a rotina manualmente (útil para testar no Railway)
 @app.post("/api/admin/rotina-diaria", tags=["admin"])
-def disparar_rotina_manual():
+def disparar_rotina_manual(request: Request):
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not verificar_token(token):
+        raise HTTPException(status_code=401, detail="Não autorizado")
+
     from backend.scheduler import rotina_diaria
     rotina_diaria()
     return {"status": "ok", "mensagem": "Rotina executada"}
