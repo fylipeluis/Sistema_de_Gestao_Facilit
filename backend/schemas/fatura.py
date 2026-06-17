@@ -1,5 +1,4 @@
 from datetime import date
-
 from pydantic import BaseModel
 
 
@@ -8,6 +7,8 @@ class FaturaCreate(BaseModel):
     valor_emprestimo: float
     qtd_parcelas: int
     inicio_cobranca: date
+    taxa_juros: float | None = None
     
     class Config:
         from_attributes = True
+

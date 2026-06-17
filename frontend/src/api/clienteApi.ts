@@ -32,6 +32,7 @@ export interface AtivarClientePayload {
   valor_emprestimo: number;
   qtd_parcelas: number;
   inicio_cobranca: string;
+  taxa_juros?: number;
 }
 
 export async function ativarClienteComFatura(

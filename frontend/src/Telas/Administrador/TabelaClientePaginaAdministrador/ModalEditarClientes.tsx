@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  type AtivarClientePayload
-} from "../../../api/clienteApi";
+import { type AtivarClientePayload } from "../../../api/clienteApi";
 import type { Cliente, ClienteUpdatePayload } from "../../../types/cliente";
 import "./ModalEditarClientes.css";
 
@@ -29,12 +27,40 @@ export function ModalEditarCliente({
     valor_emprestimo: 0,
     qtd_parcelas: 0,
     inicio_cobranca: "",
+    taxa_juros: undefined,
   });
 
   const [carregando, setCarregando] = useState(false);
 
+  // Cálculo automático de juros simples
+  const valorTotal = (() => {
+    const { valor_emprestimo, qtd_parcelas, taxa_juros } = formFatura;
+    if (!valor_emprestimo || !qtd_parcelas) return 0;
+    if (!taxa_juros) return valor_emprestimo;
+    return valor_emprestimo * (1 + (taxa_juros / 100) * qtd_parcelas);
+  })();
+
+  const valorParcela =
+    formFatura.qtd_parcelas > 0 ? valorTotal / formFatura.qtd_parcelas : 0;
+
   useEffect(() => {
     if (cliente) setFormBasico(cliente);
+  }, [cliente]);
+
+  useEffect(() => {
+    if (!cliente) return;
+
+    // Ao trocar o cliente, evitar herdar valores do formFatura do cliente anterior.
+    // Para clientes pendentes, o usuário deve preencher do zero.
+    // Para clientes não pendentes, também garantimos reset para valores neutros.
+    if (cliente.status_cliente === "PENDENTE") {
+      setFormFatura({
+        valor_emprestimo: 0,
+        qtd_parcelas: 0,
+        inicio_cobranca: "",
+        taxa_juros: undefined,
+      });
+    }
   }, [cliente]);
 
   if (!cliente) return null;
@@ -47,16 +73,13 @@ export function ModalEditarCliente({
       if (!cliente) return;
 
       if (isPendente) {
-        // Cliente PENDENTE: ativa com fatura
         await onAtivar(cliente.id_cliente, formFatura);
       } else {
-        // Cliente ATIVO/INATIVO: apenas atualiza dados básicos
         await onSalvar(cliente.id_cliente, formBasico);
       }
 
       onFechar();
-    } catch (erro) {
-      console.error("Erro ao salvar:", erro);
+    } catch {
       alert("Erro ao salvar as informações");
     } finally {
       setCarregando(false);
@@ -74,9 +97,11 @@ export function ModalEditarCliente({
     setFormFatura({
       ...formFatura,
       [name]:
-        name === "valor_emprestimo" || name === "qtd_parcelas"
-          ? Number(value)
-          : value,
+        name === "inicio_cobranca"
+          ? value
+          : value === ""
+            ? undefined
+            : Number(value),
     });
   }
 
@@ -94,7 +119,6 @@ export function ModalEditarCliente({
           </p>
 
           <div className="client-form">
-            {/* Dados Básicos */}
             <div className="form-group">
               <label>Nome</label>
               <input
@@ -125,11 +149,10 @@ export function ModalEditarCliente({
               />
             </div>
 
-            {/* Dados de Fatura (apenas se PENDENTE) */}
             {isPendente && (
               <>
                 <div className="form-group">
-                  <label>Valor Emprestado</label>
+                  <label>Valor Emprestado (R$)</label>
                   <input
                     name="valor_emprestimo"
                     type="number"
@@ -151,6 +174,35 @@ export function ModalEditarCliente({
                     placeholder="0"
                   />
                 </div>
+
+                <div className="form-group">
+                  <label>Taxa de Juros — opcional</label>
+                  <input
+                    name="taxa_juros"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formFatura.taxa_juros ?? ""}
+                    onChange={handleChangeFatura}
+                    placeholder="Ex: 5 para 5% ao mês"
+                  />
+                </div>
+
+                {/* Resumo calculado automaticamente */}
+                {formFatura.valor_emprestimo > 0 &&
+                  formFatura.qtd_parcelas > 0 && (
+                    <div className="form-resumo">
+                      <div className="resumo-linha">
+                        <span>Valor total com juros:</span>
+                        <strong>R$ {valorTotal.toFixed(2)}</strong>
+                      </div>
+
+                      <div className="resumo-linha">
+                        <span>Valor por parcela:</span>
+                        <strong>R$ {valorParcela.toFixed(2)}</strong>
+                      </div>
+                    </div>
+                  )}
 
                 <div className="form-group">
                   <label>Data Início de Cobrança</label>
