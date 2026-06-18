@@ -44,3 +44,9 @@
   font-weight: 700;
   color: #134cc8;
 }
+
+.resumo-sublabel {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 4px;
+}
