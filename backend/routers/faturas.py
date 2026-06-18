@@ -77,7 +77,6 @@ def criar_fatura(dados: FaturaCreate):
         valor_parcela = round(dados.valor_emprestimo / dados.qtd_parcelas, 2)
 
         for i in range(1, dados.qtd_parcelas + 1):
-            # Parcela 1 vence no dia inicio_cobranca, parcela 2 no dia seguinte, etc.
             data_vencimento = dados.inicio_cobranca + timedelta(days=i - 1)
 
             cursor.execute(
@@ -121,7 +120,6 @@ def marcar_parcela_paga(id_cobranca: int):
         connection = conectar()
         cursor = connection.cursor(dictionary=True)
 
-        # Verifica se a parcela existe e não está já paga
         cursor.execute(
             "SELECT id_cobranca, id_cliente, status FROM cobrancas WHERE id_cobranca = %s",
             (id_cobranca,),
@@ -137,13 +135,11 @@ def marcar_parcela_paga(id_cobranca: int):
         if parcela["status"] == "CANCELADO":
             raise HTTPException(status_code=400, detail="Parcela cancelada não pode ser baixada")
 
-        # Marca a parcela como paga
         cursor.execute(
             "UPDATE cobrancas SET status = 'PAGO' WHERE id_cobranca = %s",
             (id_cobranca,),
         )
 
-        # Verifica se todas as parcelas do cliente estão pagas -> inativa o cliente
         id_cliente = parcela["id_cliente"]
         cursor.execute(
             """
@@ -176,6 +172,40 @@ def marcar_parcela_paga(id_cobranca: int):
     except Error as e:
         if connection:
             connection.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+
+
+@router.get("/resumo")
+def obter_resumo_faturas():
+    connection = None
+    cursor = None
+    try:
+        connection = conectar()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT
+                COALESCE(SUM(f.valor_emprestimo), 0) as total_emprestado,
+                COALESCE(SUM(CASE WHEN co.status NOT IN ('PAGO', 'CANCELADO') 
+                    THEN co.valor_cobranca ELSE 0 END), 0) as valor_em_aberto,
+                COUNT(CASE WHEN co.data_vencimento = CURDATE() 
+                    AND co.status NOT IN ('PAGO', 'CANCELADO') 
+                    THEN 1 END) as cobrancas_hoje
+            FROM adm_faturas f
+            JOIN cobrancas co ON co.id_fatura = f.id_fatura
+            JOIN clientes cl ON cl.id_cliente = f.id_cliente
+            WHERE cl.status_cliente = 'ATIVO'
+            """
+        )
+        return cursor.fetchone()
+
+    except Error as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if cursor:
