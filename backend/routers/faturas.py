@@ -189,20 +189,25 @@ def obter_resumo_faturas():
         cursor = connection.cursor(dictionary=True)
 
         cursor.execute(
-            """
-            SELECT
-                COALESCE(SUM(f.valor_emprestimo), 0) as total_emprestado,
-                COALESCE(SUM(CASE WHEN co.status NOT IN ('PAGO', 'CANCELADO') 
-                    THEN co.valor_cobranca ELSE 0 END), 0) as valor_em_aberto,
-                COUNT(CASE WHEN co.data_vencimento = CURDATE() 
-                    AND co.status NOT IN ('PAGO', 'CANCELADO') 
-                    THEN 1 END) as cobrancas_hoje
+    """
+    SELECT
+        COALESCE((
+            SELECT SUM(f.valor_emprestimo)
             FROM adm_faturas f
-            JOIN cobrancas co ON co.id_fatura = f.id_fatura
             JOIN clientes cl ON cl.id_cliente = f.id_cliente
             WHERE cl.status_cliente = 'ATIVO'
-            """
-        )
+        ), 0) as total_emprestado,
+        COALESCE(SUM(CASE WHEN co.status NOT IN ('PAGO', 'CANCELADO') 
+            THEN co.valor_cobranca ELSE 0 END), 0) as valor_em_aberto,
+        COUNT(CASE WHEN co.data_vencimento = CURDATE() 
+            AND co.status NOT IN ('PAGO', 'CANCELADO') 
+            THEN 1 END) as cobrancas_hoje
+    FROM adm_faturas f
+    JOIN cobrancas co ON co.id_fatura = f.id_fatura
+    JOIN clientes cl ON cl.id_cliente = f.id_cliente
+    WHERE cl.status_cliente = 'ATIVO'
+    """
+)
         return cursor.fetchone()
 
     except Error as e:
