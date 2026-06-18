@@ -6,36 +6,41 @@ interface ResumoSectionProps {
 }
 
 export function ResumoSectionAdm({ faturas }: ResumoSectionProps) {
-  const totalDebitos = faturas.reduce((acc, fatura) => {
-    const totalFatura = fatura.parcelas.reduce(
-      (soma, parcela) => soma + parcela.valor_cobranca,
-      0,
-    );
-    return acc + totalFatura;
-  }, 0);
+  const todasParcelas = faturas.flatMap((f) => f.parcelas);
+  const hoje = new Date().toISOString().split("T")[0];
 
-  const valorQuitado = faturas
-    .flatMap((f) => f.parcelas)
-    .filter((p) => p.status === "PAGO")
-    .reduce((acc, p) => acc + p.valor_cobranca, 0);
-
-  const totalParcelas = faturas.reduce((acc, f) => acc + f.parcelas.length, 0);
-  const parcelasPagas = faturas.reduce(
-    (acc, f) =>
-      acc +
-      f.parcelas.filter(
-        (p) => (p.status || "").toUpperCase() === "PAGO",
-      ).length,
+  // Card 1 — Valor total emprestado (sem juros, valor bruto dos contratos)
+  const valorTotalEmprestado = faturas.reduce(
+    (acc, f) => acc + f.valor_emprestimo,
     0,
   );
+
+  // Card 2 — Parcelas que vencem hoje e ainda não foram pagas
+  const parcelasVencendoHoje = todasParcelas.filter((p) => {
+    const vencimento = p.data_vencimento?.split("T")[0];
+    return (
+      vencimento === hoje &&
+      p.status?.toUpperCase() !== "PAGO" &&
+      p.status?.toUpperCase() !== "CANCELADO"
+    );
+  }).length;
+
+  // Card 3 — Valor em aberto (parcelas não pagas)
+  const valorEmAberto = todasParcelas
+    .filter(
+      (p) =>
+        p.status?.toUpperCase() !== "PAGO" &&
+        p.status?.toUpperCase() !== "CANCELADO",
+    )
+    .reduce((acc, p) => acc + p.valor_cobranca, 0);
 
   return (
     <section className="resumo-section">
       <div className="resumo-cards">
         <div className="resumo-card">
-          <div className="resumo-label">Debito Total</div>
+          <div className="resumo-label">Total Emprestado</div>
           <div className="resumo-valor">
-            {totalDebitos.toLocaleString("pt-BR", {
+            {valorTotalEmprestado.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             })}
@@ -43,20 +48,22 @@ export function ResumoSectionAdm({ faturas }: ResumoSectionProps) {
         </div>
 
         <div className="resumo-card">
-          <div className="resumo-label">Valor Quitado</div>
-          <div className="resumo-valor" style={{ color: "#10b981" }}>
-            {valorQuitado.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })}
-          </div>
-        </div>
-
-        <div className="resumo-card">
-          <div className="resumo-label">Pendentes</div>
+          <div className="resumo-label">Cobranças de Hoje</div>
           <div className="resumo-valor" style={{ color: "#f59e0b" }}>
-            {totalParcelas - parcelasPagas}
+            {parcelasVencendoHoje}
           </div>
+          <div className="resumo-sublabel">parcela(s) a vencer hoje</div>
+        </div>
+
+        <div className="resumo-card">
+          <div className="resumo-label">Valor em Aberto</div>
+          <div className="resumo-valor" style={{ color: "#ef4444" }}>
+            {valorEmAberto.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </div>
+          <div className="resumo-sublabel">pendente + atrasado</div>
         </div>
       </div>
     </section>
