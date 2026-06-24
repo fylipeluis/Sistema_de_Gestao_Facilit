@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request
 from mysql.connector import Error
+from datetime import timedelta
 from backend.database.connection import conectar
 from backend.schemas.cliente import ClienteUpdate, ClienteAtivarComFatura
 
@@ -120,12 +121,15 @@ def ativar_cliente_com_fatura(id: int, dados: ClienteAtivarComFatura):
 
         valor_parcela = round(dados.valor_emprestimo / dados.qtd_parcelas, 2)
         for i in range(1, dados.qtd_parcelas + 1):
+            data_vencimento = dados.inicio_cobranca + timedelta(days=i - 1)
+
             cursor.execute(
                 """
-                INSERT INTO cobrancas (id_cliente, id_fatura, valor_cobranca, numero_parcela)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO cobrancas 
+                    (id_cliente, id_fatura, valor_cobranca, numero_parcela, data_vencimento, status)
+                VALUES (%s, %s, %s, %s, %s, 'PENDENTE')
                 """,
-                (id, id_fatura, valor_parcela, i),
+                (id, id_fatura, valor_parcela, i, data_vencimento),
             )
 
         cursor.execute(
