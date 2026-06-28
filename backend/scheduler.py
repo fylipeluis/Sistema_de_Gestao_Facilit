@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime as dt
 from mysql.connector import Error
 from backend.database.connection import conectar
 import logging
@@ -19,7 +19,7 @@ def marcar_parcelas_atrasadas():
             UPDATE cobrancas
             SET status = 'ATRASADO'
             WHERE status = 'PENDENTE'
-              AND data_vencimento < CURDATE()
+            AND data_vencimento < CURDATE()
             """
         )
         afetadas = cursor.rowcount
@@ -47,16 +47,15 @@ def inativar_clientes_concluidos():
         connection = conectar()
         cursor = connection.cursor(dictionary=True)
 
-        # Clientes ATIVOS que não têm nenhuma parcela PENDENTE ou ATRASADA
         cursor.execute(
             """
             SELECT DISTINCT c.id_cliente
             FROM clientes c
             WHERE c.status_cliente = 'ATIVO'
-              AND NOT EXISTS (
+            AND NOT EXISTS (
                 SELECT 1 FROM cobrancas co
                 WHERE co.id_cliente = c.id_cliente
-                  AND co.status IN ('PENDENTE', 'ATRASADO')
+                AND co.status IN ('PENDENTE', 'ATRASADO')
               )
             """
         )
@@ -87,11 +86,6 @@ def inativar_clientes_concluidos():
 
 
 def buscar_parcelas_do_dia():
-    """
-    Retorna parcelas que devem ser notificadas hoje.
-    Regra: data_vencimento = hoje (PENDENTE) ou status ATRASADO,
-    e que não receberam mensagem hoje ainda.
-    """
     connection = None
     cursor = None
     try:
@@ -99,29 +93,29 @@ def buscar_parcelas_do_dia():
         cursor = connection.cursor(dictionary=True)
 
         cursor.execute(
-        """
-        SELECT
-            co.id_cobranca,
-            co.numero_parcela,
-            co.valor_cobranca,
-            co.pix_code,
-            co.status,
-            co.data_vencimento,
-            cl.nome_completo,
-            cl.telefone,
-            f.qtd_parcelas
-        FROM cobrancas co
-        JOIN adm_faturas f  ON co.id_fatura   = f.id_fatura
-        JOIN clientes   cl  ON co.id_cliente  = cl.id_cliente
-        WHERE
-            cl.status_cliente = 'ATIVO'
-            AND co.status IN ('PENDENTE', 'ATRASADO')
-            AND (co.ultima_mensagem IS NULL OR DATE(co.ultima_mensagem) < CURDATE())
-            AND co.data_vencimento <= CURDATE()
-        GROUP BY co.id_cobranca
-        ORDER BY co.data_vencimento ASC
-        
-        """
+            """
+            SELECT
+                co.id_cobranca,
+                co.numero_parcela,
+                co.valor_cobranca,
+                co.pix_code,
+                co.pix_expira_em,
+                co.status,
+                co.data_vencimento,
+                cl.nome_completo,
+                cl.telefone,
+                f.qtd_parcelas
+            FROM cobrancas co
+            JOIN adm_faturas f  ON co.id_fatura   = f.id_fatura
+            JOIN clientes   cl  ON co.id_cliente  = cl.id_cliente
+            WHERE
+                cl.status_cliente = 'ATIVO'
+                AND co.status IN ('PENDENTE', 'ATRASADO')
+                AND (co.ultima_mensagem IS NULL OR DATE(co.ultima_mensagem) < CURDATE())
+                AND co.data_vencimento <= CURDATE()
+            GROUP BY co.id_cobranca
+            ORDER BY co.data_vencimento ASC
+            """
         )
         return cursor.fetchall()
 
@@ -160,21 +154,76 @@ def registrar_mensagem_enviada(id_cobranca: int):
             connection.close()
 
 
+def salvar_pix_gerado(id_cobranca: int, pix_code: str, payment_id: str, expira_em):
+    """Salva os dados do Pix recém-gerado na parcela."""
+    connection = None
+    cursor = None
+    try:
+        connection = conectar()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            UPDATE cobrancas 
+            SET pix_code = %s, mp_payment_id = %s, pix_expira_em = %s
+            WHERE id_cobranca = %s
+            """,
+            (pix_code, payment_id, expira_em, id_cobranca),
+        )
+        connection.commit()
+
+    except Error as e:
+        logger.error(f"[scheduler] Erro ao salvar Pix gerado para {id_cobranca}: {e}")
+        if connection:
+            connection.rollback()
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+
+
 def rotina_diaria():
     """Orquestra tudo — chamada pelo APScheduler todo dia às 08h."""
     logger.info("[scheduler] Iniciando rotina diária...")
 
-    # 1. Marcar atrasadas primeiro (antes de buscar para notificar)
     marcar_parcelas_atrasadas()
 
-    # 2. Buscar o que notificar hoje
     parcelas = buscar_parcelas_do_dia()
     logger.info(f"[scheduler] {len(parcelas)} parcela(s) para notificar hoje")
 
-    # 3. Enviar mensagens
     from backend.services.whatsapp import whatsapp_service
+    from backend.services.mercadopago_service import gerar_pix
+
     for parcela in parcelas:
         try:
+            pix_code = parcela.get("pix_code")
+            pix_expira_em = parcela.get("pix_expira_em")
+
+            precisa_gerar_pix = (
+                not pix_code or
+                not pix_expira_em or
+                pix_expira_em < dt.utcnow()
+            )
+
+            if precisa_gerar_pix:
+                try:
+                    resultado_pix = gerar_pix(
+                        id_cobranca=parcela["id_cobranca"],
+                        valor=float(parcela["valor_cobranca"]),
+                        descricao=f"Parcela {parcela['numero_parcela']}/{parcela['qtd_parcelas']} - {parcela['nome_completo']}",
+                    )
+                    pix_code = resultado_pix["qr_code"]
+                    salvar_pix_gerado(
+                        parcela["id_cobranca"],
+                        pix_code,
+                        resultado_pix["payment_id"],
+                        resultado_pix["expira_em"],
+                    )
+                except Exception as e:
+                    logger.error(f"[scheduler] Falha ao gerar Pix para parcela {parcela['id_cobranca']}: {e}")
+                    pix_code = None
+
             enviado = whatsapp_service.enviar_lembrete(
                 telefone=parcela["telefone"],
                 nome=parcela["nome_completo"],
@@ -182,17 +231,14 @@ def rotina_diaria():
                 qtd_parcelas=parcela["qtd_parcelas"],
                 valor=float(parcela["valor_cobranca"]),
                 vencimento=parcela["data_vencimento"],
-                pix_code=parcela["pix_code"],
+                pix_code=pix_code,
                 status=parcela["status"],
             )
             if enviado:
                 registrar_mensagem_enviada(parcela["id_cobranca"])
-                logger.info(f"[scheduler] ultima_mensagem registrada para parcela {parcela['id_cobranca']}")
         except Exception as e:
             logger.error(f"[scheduler] Falha ao notificar parcela {parcela['id_cobranca']}: {e}")
-            # Continua para a próxima — falha em 1 não para as demais
 
-    # 4. Inativar clientes com contrato concluído
     inativar_clientes_concluidos()
 
     logger.info("[scheduler] Rotina diária concluída")
