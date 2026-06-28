@@ -5,6 +5,11 @@ logger = logging.getLogger(__name__)
 
 
 class WhatsAppServiceMock:
+    """
+    Mock para desenvolvimento — só loga no console.
+    Troque por implementação real quando escolher o fornecedor.
+    """
+
     def enviar_lembrete(
         self,
         telefone: str,
@@ -12,10 +17,12 @@ class WhatsAppServiceMock:
         numero_parcela: int,
         qtd_parcelas: int,
         valor: float,
-        vencimento,
+        vencimento: date,
         pix_code: str | None,
         status: str,
     ) -> bool:
+        """Retorna True se enviou com sucesso, False se falhou."""
+
         prefixo = "⚠️ ATRASADO —" if status == "ATRASADO" else ""
 
         mensagem = (
@@ -27,12 +34,11 @@ class WhatsAppServiceMock:
         )
 
         if pix_code:
-            mensagem += f"\n\nPague com Pix (copie e cole no app do seu banco):\n{pix_code}"
-        else:
-            mensagem += "\n\n(Não foi possível gerar o Pix automático — contate o suporte.)"
+            mensagem += f" Pix: {pix_code}"
 
         logger.info(f"[whatsapp-mock] Para {telefone}: {mensagem}")
         return True
 
 
+# Instância global — quando tiver fornecedor real, troca só aqui
 whatsapp_service = WhatsAppServiceMock()
