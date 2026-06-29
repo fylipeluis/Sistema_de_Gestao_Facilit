@@ -509,6 +509,89 @@
   border-color: #d1d5db;
 }
 
+.qrcode-container {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.qrcode-imagem {
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.pix-copia-cola {
+  margin: 16px 0;
+}
+
+.pix-copia-cola label {
+  display: block;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.pix-code-box {
+  display: flex;
+  gap: 8px;
+}
+
+.pix-code-box input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #374151;
+  background: #f9fafb;
+}
+
+.btn-copiar {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-copiar:hover {
+  background-color: #1d4ed8;
+}
+
+.pix-instrucao {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.pix-status {
+  text-align: center;
+  color: #6b7280;
+  padding: 24px 0;
+}
+
+.pix-erro {
+  text-align: center;
+  color: #dc2626;
+  padding: 16px 0;
+}
+
+.btn-tentar-novamente {
+  margin-top: 8px;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
   .cliente-header {

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { gerarPix } from "../../../api/pixApi";
 
 interface ModalPagamentoProps {
   parcelaId: number | null;
@@ -6,30 +7,44 @@ interface ModalPagamentoProps {
   onFechar: () => void;
 }
 
-export function ModalPagamento({
-  parcelaId,
-  valor,
-  onFechar,
-}: ModalPagamentoProps) {
-  const [metodoPagamento, setMetodoPagamento] = useState<
-    "pix" | "boleto" | "credito"
-  >("pix");
+export function ModalPagamento({ parcelaId, valor, onFechar }: ModalPagamentoProps) {
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [pixCode, setPixCode] = useState<string | null>(null);
+  const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState(false);
 
-  function handlePagarAgora() {
-    alert(
-      `Pagamento de R$ ${valor.toFixed(2)} via ${metodoPagamento.toUpperCase()} será processado em breve.`,
-    );
-    onFechar();
+  useEffect(() => {
+    if (parcelaId) gerarPixParaParcela();
+  }, [parcelaId]);
+
+  async function gerarPixParaParcela() {
+    try {
+      setCarregando(true);
+      setErro(null);
+      const resultado = await gerarPix(parcelaId!);
+      setPixCode(resultado.pix_code);
+      if (resultado.qr_code_base64) setQrCodeBase64(resultado.qr_code_base64);
+    } catch (err: any) {
+      setErro(err.message || "Erro ao gerar o código Pix. Tente novamente.");
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function handleCopiar() {
+    if (!pixCode) return;
+    await navigator.clipboard.writeText(pixCode);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2000);
   }
 
   return (
     <div className="modal-overlay" onClick={onFechar}>
       <div className="modal-pagamento" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-fechar" onClick={onFechar}>
-          ×
-        </button>
+        <button className="modal-fechar" onClick={onFechar}>×</button>
 
-        <h2>Confirmar Pagamento</h2>
+        <h2>Pagar com Pix</h2>
         <p className="modal-desc">Parcela #{parcelaId}</p>
 
         <div className="valor-display">
@@ -37,56 +52,51 @@ export function ModalPagamento({
           <span className="valor-grande">R$ {valor.toFixed(2)}</span>
         </div>
 
-        <div className="metodos-pagamento">
-          <label className="metodo-item">
-            <input
-              type="radio"
-              name="metodo"
-              value="pix"
-              checked={metodoPagamento === "pix"}
-              onChange={(e) => setMetodoPagamento(e.target.value as "pix")}
-            />
-            <span className="metodo-label">
-              <strong>PIX</strong>
-              <small>Instantâneo e seguro</small>
-            </span>
-          </label>
+        {carregando && (
+          <p className="pix-status">Gerando seu código Pix...</p>
+        )}
 
-          <label className="metodo-item">
-            <input
-              type="radio"
-              name="metodo"
-              value="boleto"
-              checked={metodoPagamento === "boleto"}
-              onChange={(e) => setMetodoPagamento(e.target.value as "boleto")}
-            />
-            <span className="metodo-label">
-              <strong>Boleto</strong>
-              <small>Prazo de até 2 dias</small>
-            </span>
-          </label>
+        {erro && (
+          <div className="pix-erro">
+            <p>{erro}</p>
+            <button className="btn-tentar-novamente" onClick={gerarPixParaParcela}>
+              Tentar novamente
+            </button>
+          </div>
+        )}
 
-          <label className="metodo-item">
-            <input
-              type="radio"
-              name="metodo"
-              value="credito"
-              checked={metodoPagamento === "credito"}
-              onChange={(e) => setMetodoPagamento(e.target.value as "credito")}
-            />
-            <span className="metodo-label">
-              <strong>Cartão de Crédito</strong>
-              <small>Em até 12 parcelas</small>
-            </span>
-          </label>
-        </div>
+        {!carregando && !erro && pixCode && (
+          <>
+            {qrCodeBase64 && (
+              <div className="qrcode-container">
+                <img
+                  src={`data:image/png;base64,${qrCodeBase64}`}
+                  alt="QR Code Pix"
+                  className="qrcode-imagem"
+                />
+              </div>
+            )}
+
+            <div className="pix-copia-cola">
+              <label>Ou copie o código Pix:</label>
+              <div className="pix-code-box">
+                <input type="text" readOnly value={pixCode} />
+                <button className="btn-copiar" onClick={handleCopiar}>
+                  {copiado ? "Copiado!" : "Copiar"}
+                </button>
+              </div>
+            </div>
+
+            <p className="pix-instrucao">
+              Abra o app do seu banco, escolha pagar com Pix e cole o código acima.
+              O pagamento é confirmado automaticamente.
+            </p>
+          </>
+        )}
 
         <div className="modal-buttons">
-          <button className="btn-pagar-agora" onClick={handlePagarAgora}>
-            Pagar Agora
-          </button>
           <button className="btn-cancelar-modal" onClick={onFechar}>
-            Cancelar
+            Fechar
           </button>
         </div>
       </div>
