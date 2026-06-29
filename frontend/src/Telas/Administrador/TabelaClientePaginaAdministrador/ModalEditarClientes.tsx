@@ -32,7 +32,6 @@ export function ModalEditarCliente({
 
   const [carregando, setCarregando] = useState(false);
 
-  // Cálculo automático de juros simples
   const valorTotal = (() => {
     const { valor_emprestimo, qtd_parcelas, taxa_juros } = formFatura;
     if (!valor_emprestimo || !qtd_parcelas) return 0;
@@ -50,10 +49,8 @@ export function ModalEditarCliente({
   useEffect(() => {
     if (!cliente) return;
 
-    // Ao trocar o cliente, evitar herdar valores do formFatura do cliente anterior.
-    // Para clientes pendentes, o usuário deve preencher do zero.
-    // Para clientes não pendentes, também garantimos reset para valores neutros.
-    if (cliente.status_cliente === "PENDENTE") {
+    // Reseta o formFatura ao trocar de cliente, para PENDENTE e INATIVO
+    if (cliente.status_cliente === "PENDENTE" || cliente.status_cliente === "INATIVO") {
       setFormFatura({
         valor_emprestimo: 0,
         qtd_parcelas: 0,
@@ -66,13 +63,15 @@ export function ModalEditarCliente({
   if (!cliente) return null;
 
   const isPendente = cliente.status_cliente === "PENDENTE";
+  const isInativo = cliente.status_cliente === "INATIVO";
+  const podeAtivarComFatura = isPendente || isInativo;
 
   async function handleSalvar() {
     try {
       setCarregando(true);
       if (!cliente) return;
 
-      if (isPendente) {
+      if (podeAtivarComFatura) {
         await onAtivar(cliente.id_cliente, formFatura);
       } else {
         await onSalvar(cliente.id_cliente, formBasico);
@@ -113,7 +112,7 @@ export function ModalEditarCliente({
         </span>
 
         <div className="client-form-container">
-          <h2>{isPendente ? "Ativar Cliente" : "Dados do Cliente"}</h2>
+          <h2>{podeAtivarComFatura ? "Novo Contrato" : "Dados do Cliente"}</h2>
           <p style={{ color: "#666", fontSize: "0.9em", marginBottom: "15px" }}>
             Status: <strong>{cliente.status_cliente}</strong>
           </p>
@@ -149,7 +148,7 @@ export function ModalEditarCliente({
               />
             </div>
 
-            {isPendente && (
+            {podeAtivarComFatura && (
               <>
                 <div className="form-group">
                   <label>Valor Emprestado (R$)</label>
@@ -188,7 +187,6 @@ export function ModalEditarCliente({
                   />
                 </div>
 
-                {/* Resumo calculado automaticamente */}
                 {formFatura.valor_emprestimo > 0 &&
                   formFatura.qtd_parcelas > 0 && (
                     <div className="form-resumo">
@@ -218,7 +216,7 @@ export function ModalEditarCliente({
           </div>
 
           <div className="form-buttons">
-            {isPendente && (
+            {podeAtivarComFatura && (
               <button
                 className="btn-save"
                 onClick={handleSalvar}
