@@ -22,6 +22,7 @@ export function LinhaCliente({
 
     const isAtivo = cliente.status_cliente === "ATIVO";
     const IsPendente = cliente.status_cliente === "PENDENTE";
+    const IsInativo = cliente.status_cliente === "INATIVO";
 
 
   async function handleExcluir() {
@@ -69,11 +70,11 @@ export function LinhaCliente({
         ) : (
           <>
 
-          {IsPendente && (
+          {IsPendente || IsInativo ? (
             <button className="btn-edit" onClick={onEditar}>
               Novo Contrato
             </button>
-          )}
+          ) : null}
 
             {isAtivo && (
               <button className="btn-contract" onClick={onVerContratos}>

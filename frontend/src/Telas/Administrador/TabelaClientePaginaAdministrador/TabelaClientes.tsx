@@ -6,13 +6,14 @@ import { ModalContratos } from "./ModalContratos";
 import type { Cliente } from "../../../types/cliente";
 import "./TabelaClientes.css";
 
-
 export default function TabelaClientes() {
   const { clientes, loading, erro, excluir, atualizar, ativar } = useClientes();
   const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
   const [clienteContratos, setClienteContratos] = useState<number | null>(null);
   const [termoPesquisa, setTermoPesquisa] = useState("");
-  const clientesFiltrados = ordenarClientes(filtrarClientes(clientes, termoPesquisa));
+  const clientesFiltrados = ordenarClientes(
+    filtrarClientes(clientes, termoPesquisa),
+  );
 
   if (loading) return <p>Carregando...</p>;
   if (erro) return <p>{erro}</p>;
@@ -86,13 +87,15 @@ function filtrarClientes(clientes: Cliente[], termo: string): Cliente[] {
 }
 
 function ordenarClientes(clientes: Cliente[]): Cliente[] {
+  const ordem: Record<string, number> = {
+    PENDENTE: 0,
+    ATIVO: 1,
+    INATIVO: 2,
+  };
+
   return [...clientes].sort((a, b) => {
-    // PENDENTE vem primeiro
-    if (a.status_cliente === "PENDENTE" && b.status_cliente !== "PENDENTE")
-      return -1;
-    if (a.status_cliente !== "PENDENTE" && b.status_cliente === "PENDENTE")
-      return 1;
-    // Se ambos têm o mesmo status, mantém ordem original
-    return 0;
+    const ordemA = ordem[a.status_cliente] ?? 1;
+    const ordemB = ordem[b.status_cliente] ?? 1;
+    return ordemA - ordemB;
   });
 }
