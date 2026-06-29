@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 from backend.routers import clientes, faturas, auth
 from backend.routers.auth import verificar_token
+from backend.routers import clientes, faturas, auth, webhooks
+
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -48,6 +50,7 @@ app.add_middleware(
 app.include_router(clientes.router, prefix="/api")
 app.include_router(faturas.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
+app.include_router(webhooks.router, prefix="/api")
 
 
 @app.get("/health")
