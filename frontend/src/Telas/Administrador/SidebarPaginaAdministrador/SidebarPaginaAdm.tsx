@@ -6,7 +6,7 @@ import {
   Wallet,
   TrendingUp,
 } from "lucide-react";
-import "./SideBarPaginaAdm.css";
+import "./SidebarPaginaAdm.css";
 
 export type Secao =
   | "dashboard"
