@@ -1,16 +1,18 @@
 .title-header {
   display: flex;
   align-items: center;
+
   gap: 20px;
-  flex: 1; 
+  flex: 1;
 }
 
 .title-header h1 {
-  color: #ffffff; 
+  color: #ffffff;
   font-size: 32px;
   font-weight: 700;
   position: static;
   transform: none;
   text-transform: uppercase;
   letter-spacing: 1px;
+  transform: translateX(220px);
 }
