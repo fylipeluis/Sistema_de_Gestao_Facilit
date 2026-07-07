@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { FileText } from "lucide-react";
 import { getStatusClass } from "../../../services/clienteService";
 import type { Cliente } from "../../../types/cliente";
 import "./BotoesDeAcoes.css";
@@ -19,11 +20,22 @@ export function LinhaCliente({
 }: Props) {
   const [confirmando, setConfirmando] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
+  const [menuAberto, setMenuAberto] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-    const isAtivo = cliente.status_cliente === "ATIVO";
-    const IsPendente = cliente.status_cliente === "PENDENTE";
-    const IsInativo = cliente.status_cliente === "INATIVO";
+  const isAtivo = cliente.status_cliente === "ATIVO";
+  const IsPendente = cliente.status_cliente === "PENDENTE";
+  const IsInativo = cliente.status_cliente === "INATIVO";
 
+  useEffect(() => {
+    function handleClickFora(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuAberto(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickFora);
+    return () => document.removeEventListener("mousedown", handleClickFora);
+  }, []);
 
   async function handleExcluir() {
     try {
@@ -68,24 +80,44 @@ export function LinhaCliente({
             </button>
           </>
         ) : (
-          <>
-
-          {IsPendente || IsInativo ? (
-            <button className="btn-edit" onClick={onEditar}>
-              Novo Contrato
-            </button>
-          ) : null}
+          <div className="acoes-cell">
+            {IsPendente || IsInativo ? (
+              <button className="btn-edit" onClick={onEditar}>
+                Novo Contrato
+              </button>
+            ) : null}
 
             {isAtivo && (
               <button className="btn-contract" onClick={onVerContratos}>
+                <FileText size={16} />
                 Contrato
               </button>
             )}
-            
-            <button className="btn-delete" onClick={() => setConfirmando(true)}>
-              Excluir
-            </button>
-          </>
+
+            <div className="menu-acoes" ref={menuRef}>
+              <button
+                className="btn-kebab"
+                onClick={() => setMenuAberto((v) => !v)}
+                aria-label="Mais ações"
+              >
+                ⋮
+              </button>
+
+              {menuAberto && (
+                <div className="dropdown-menu">
+                  <button
+                    className="dropdown-item dropdown-item-danger"
+                    onClick={() => {
+                      setConfirmando(true);
+                      setMenuAberto(false);
+                    }}
+                  >
+                    Excluir
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </td>
     </tr>

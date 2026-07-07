@@ -24,3 +24,83 @@ padding: 6px 10px;
   font-size: 12px;
   font-weight: bold;
 }
+
+/* Adicione estas regras ao seu BotoesDeAcoes.css existente */
+
+.acoes-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-contract {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1a1a1a;
+  border: 1px solid #262626;
+  color: #e5e5e5;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-contract:hover {
+  background: #232323;
+}
+
+.menu-acoes {
+  position: relative;
+}
+
+.btn-kebab {
+  background: none;
+  border: none;
+  color: #8a8a8a;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.btn-kebab:hover {
+  background: #1a1a1a;
+  color: #f5f5f5;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0; /* abre para a esquerda do botão, já que é a última coluna */
+  margin-top: 4px;
+  background: #1a1a1a;
+  border: 1px solid #262626;
+  border-radius: 10px;
+  min-width: 140px;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #e5e5e5;
+  font-size: 13px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: #232323;
+}
+
+.dropdown-item-danger {
+  color: #ef4444;
+}
