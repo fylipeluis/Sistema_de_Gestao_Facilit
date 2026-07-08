@@ -14,7 +14,7 @@
   left: 0;
   height: 100vh;
   width: var(--sidebar-width);
-  background: #151515;
+  background: transparent;
   border-right: 1px solid #2e2e33;
   display: flex;
   flex-direction: column;

@@ -10,11 +10,19 @@
 }
 
 .resumo-container {
-  background: #1c1c1f;
+  position: relative;
+  overflow: hidden;
 
-  border: 1px solid #2e2e33;
-
+  border: 1px solid transparent;
   border-radius: 18px;
+  background:
+    linear-gradient(#141414, #141414) padding-box,
+    radial-gradient(
+        140px 140px at 100% 0%,
+        rgba(255, 212, 0, 0.55),
+        #2e2e33 65%
+      )
+      border-box;
 
   padding: 24px;
 
@@ -27,10 +35,33 @@
   transition: 0.25s;
 }
 
+.resumo-container::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 212, 0, 0.35) 0%,
+    rgba(255, 212, 0, 0.12) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
 .resumo-container:hover {
   transform: translateY(-5px);
 
-  border-color: #ffd40066;
+  background:
+    linear-gradient(#141414, #141414) padding-box,
+    radial-gradient(
+        160px 160px at 100% 0%,
+        rgba(255, 212, 0, 0.85),
+        #2e2e33 65%
+      )
+      border-box;
 }
 
 .resumo-icon {

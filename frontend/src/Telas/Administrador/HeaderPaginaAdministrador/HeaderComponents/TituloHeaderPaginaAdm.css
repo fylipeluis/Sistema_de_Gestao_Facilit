@@ -1,7 +1,6 @@
 .title-header {
   display: flex;
   align-items: center;
-
   gap: 20px;
   flex: 1;
 }
@@ -14,5 +13,8 @@
   transform: none;
   text-transform: uppercase;
   letter-spacing: 1px;
-  transform: translateX(220px);
+}
+
+.title-header h1 span {
+  color: #f0c419;
 }
