@@ -1,3 +1,4 @@
+import { Wallet, CalendarClock, TrendingUp } from "lucide-react";
 import { useResumo } from "../../../hooks/useResumo";
 import "./ResumoDetalhesAdm.css";
 
@@ -5,36 +6,78 @@ export function ResumoSectionAdm() {
   const { resumo } = useResumo();
 
   return (
-    <section className="resumo-section">
-      <div className="resumo-cards">
-        <div className="resumo-card">
-          <div className="resumo-label">Total Emprestado</div>
-          <div className="resumo-valor">
-            {(resumo.total_emprestado ?? 0).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })}
+    <section className="resumo-cliente">
+      <div className="resumo-containers">
+
+        {/* Total Emprestado */}
+        <div className="resumo-container">
+          <div className="resumo-icon">
+            <Wallet size={28} />
+          </div>
+
+          <div className="resumo-info">
+            <span className="label-resumo">
+              Total Emprestado
+            </span>
+
+            <h2 className="resumo-valor destaque-amarelo">
+              {(resumo.total_emprestado ?? 0).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })}
+            </h2>
+
+            <span className="resumo-sublabel">
+              Valor total emprestado
+            </span>
           </div>
         </div>
 
-        <div className="resumo-card">
-          <div className="resumo-label">Cobranças de Hoje</div>
-          <div className="resumo-valor" style={{ color: "#f59e0b" }}>
-            {resumo.cobrancas_hoje ?? 0}
+        {/* Cobranças de Hoje */}
+        <div className="resumo-container">
+          <div className="resumo-icon">
+            <CalendarClock size={28} />
           </div>
-          <div className="resumo-sublabel">parcela(s) a vencer hoje</div>
+
+          <div className="resumo-info">
+            <span className="label-resumo">
+              Cobranças de Hoje
+            </span>
+
+            <h2 className="resumo-valor">
+              {resumo.cobrancas_hoje ?? 0}
+            </h2>
+
+            <span className="resumo-sublabel">
+              parcela(s) a vencer hoje
+            </span>
+          </div>
         </div>
 
-        <div className="resumo-card">
-          <div className="resumo-label">Valor em Aberto</div>
-          <div className="resumo-valor" style={{ color: "#ef4444" }}>
-            {(resumo.valor_em_aberto ?? 0).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })}
+        {/* Valor em Aberto */}
+        <div className="resumo-container">
+          <div className="resumo-icon">
+            <TrendingUp size={28} />
           </div>
-          <div className="resumo-sublabel">pendente + atrasado</div>
+
+          <div className="resumo-info">
+            <span className="label-resumo">
+              Valor em Aberto
+            </span>
+
+            <h2 className="resumo-valor destaque-vermelho">
+              {(resumo.valor_em_aberto ?? 0).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })}
+            </h2>
+
+            <span className="resumo-sublabel">
+              pendente + atrasado
+            </span>
+          </div>
         </div>
+
       </div>
     </section>
   );
