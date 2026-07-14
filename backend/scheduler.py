@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 def marcar_parcelas_atrasadas():
-    """Muda para ATRASADO toda parcela PENDENTE cuja data_vencimento já passou."""
     connection = None
     cursor = None
     try:
@@ -184,7 +183,6 @@ def salvar_pix_gerado(id_cobranca: int, pix_code: str, payment_id: str, expira_e
 
 
 def rotina_diaria():
-    """Orquestra tudo — chamada pelo APScheduler todo dia às 08h."""
     logger.info("[scheduler] Iniciando rotina diária...")
 
     marcar_parcelas_atrasadas()
@@ -192,8 +190,18 @@ def rotina_diaria():
     parcelas = buscar_parcelas_do_dia()
     logger.info(f"[scheduler] {len(parcelas)} parcela(s) para notificar hoje")
 
-    from backend.services.whatsapp import whatsapp_service
+    from backend.services.zapi_service import whatsapp_service, verificar_conexao
+    from backend.services.alerta_service import alertar_admin
     from backend.services.mercadopago_service import gerar_pix
+
+    zapi_ok = verificar_conexao()
+    if not zapi_ok:
+        alertar_admin(
+            "🚨 Z-API desconectada — notificações de WhatsApp NÃO serão enviadas hoje.\n"
+            "Acesse o painel do Z-API e reescaneie o QR Code.\n"
+            "Até resolver, conclua os avisos de cobrança manualmente."
+        )
+        logger.warning("[scheduler] Z-API desconectada — pulando notificações desta rotina")
 
     for parcela in parcelas:
         try:
@@ -223,6 +231,10 @@ def rotina_diaria():
                 except Exception as e:
                     logger.error(f"[scheduler] Falha ao gerar Pix para parcela {parcela['id_cobranca']}: {e}")
                     pix_code = None
+
+            if not zapi_ok:
+                logger.info(f"[scheduler] Pulando notificação da parcela {parcela['id_cobranca']} — Z-API offline")
+                continue
 
             enviado = whatsapp_service.enviar_lembrete(
                 telefone=parcela["telefone"],
