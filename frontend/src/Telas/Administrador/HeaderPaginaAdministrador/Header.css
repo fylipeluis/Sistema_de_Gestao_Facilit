@@ -1,6 +1,6 @@
 .header {
   width: 100%;
-  background: linear-gradient(135deg, #134cc8, #f07800eb);
+  background: transparent;
   display: flex;
   justify-content: space-between;
   align-items: center;

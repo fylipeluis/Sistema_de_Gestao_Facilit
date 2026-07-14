@@ -1,10 +1,11 @@
 .clientes-wrapper {
   width: 95%;
   margin: 30px auto;
-  background: white;
+  background: #121212;
   padding: 30px;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid #1f1e1e;
 }
 
 .clientes-header {
@@ -21,13 +22,13 @@
 .clientes-title {
   font-size: 28px;
   font-weight: 600;
-  color: #333;
+  color: #f5f5f5;
   margin: 0 0 8px 0;
 }
 
 .clientes-description {
   font-size: 14px;
-  color: #666666;
+  color: #a1a1aa;
   margin: 0;
 }
 
@@ -39,15 +40,17 @@
 .search-input {
   width: 100%;
   padding: 12px 40px 12px 16px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #292929;
   border-radius: 8px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.3s;
+  background: transparent;
+  color: #f5f5f5;
 }
 
 .search-input:focus {
-  border-color: #134cc8;
+  border-color: #ffd40066;
 }
 
 .search-icon {
@@ -55,50 +58,151 @@
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #cc0909;
   pointer-events: none;
   font-size: 16px;
 }
 
+/* --- container da tabela: uma única definição, sem duplicidade --- */
 .table-container {
   margin: 0 -30px -30px -30px;
   width: calc(100% + 60px);
   padding: 0 30px 30px 30px;
   border-radius: 0 0 15px 15px;
+
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh; /* ajuste conforme o layout real */
+}
+
+.table-scroll {
+  flex: 1;
+  min-height: 0; /* essencial: sem isso o flex item ignora overflow do filho */
+  overflow-y: auto;
   overflow-x: auto;
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legado */
+}
+
+.table-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge (Chromium) */
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* garante colunas consistentes e linhas sempre esticadas ponta a ponta */
 }
 
+/* --- cabeçalho no estilo da imagem: fundo escuro, texto claro uppercase --- */
 thead {
-  background-color: #2563eb;
+  background-color: #121212;
+}
+
+.table-scroll table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #121212; /* precisa bater com o fundo real, senão o conteúdo "passa por trás" ao rolar */
 }
 
 th {
   padding: 16px 12px;
   text-align: left;
   font-weight: 600;
-  color: #fff;
-  font-size: 14px;
-  border-bottom: 2px solid #e0e0e0;
+  color: #a1a1aa;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #232323;
+  white-space: nowrap;
 }
 
 td {
   padding: 16px 12px;
   text-align: left;
   font-size: 14px;
-  color: #333;
+  color: #e5e5e5;
 }
 
 tbody tr {
-  border-bottom: 1px solid #eee;
-  transition: 0.2s;
+  border-bottom: 1px solid #232323;
+  transition: background-color 0.2s;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
 }
 
 tbody tr:hover {
-  background-color: #f1f5ff;
+  background-color: #1a1a1a;
 }
 
+.clientes-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-top: 1px solid #232323;
+}
+
+.clientes-contagem {
+  font-size: 12px;
+  color: #8a8a8a;
+}
+
+.clientes-paginacao {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-pagina,
+.btn-pagina-icon {
+  min-width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: #8a8a8a;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-pagina:hover,
+.btn-pagina-icon:hover {
+  background: #1a1a1a;
+  color: #f5f5f5;
+}
+
+.btn-pagina-icon:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.btn-pagina-ativa {
+  background: #f0c419;
+  color: #121212;
+  font-weight: 700;
+}
+
+.pagina-reticencias {
+  color: #555;
+  padding: 0 4px;
+  font-size: 13px;
+}
+
+.select-por-pagina {
+  background: #1a1a1a;
+  border: 1px solid #262626;
+  color: #e5e5e5;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
