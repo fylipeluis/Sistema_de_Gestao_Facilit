@@ -245,6 +245,7 @@ def rotina_diaria():
                 vencimento=parcela["data_vencimento"],
                 pix_code=pix_code,
                 status=parcela["status"],
+                id_cobranca=parcela["id_cobranca"]
             )
             if enviado:
                 registrar_mensagem_enviada(parcela["id_cobranca"])

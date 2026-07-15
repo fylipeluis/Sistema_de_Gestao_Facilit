@@ -1,0 +1,328 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.pagina-pagamento {
+  width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 42% 58%;
+  background: #ffffff;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ===========================
+   LADO ESQUERDO
+=========================== */
+
+.painel-esquerdo {
+  background: linear-gradient(160deg, #121212, #1f1f1f);
+
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 50px;
+
+  position: relative;
+}
+
+.painel-esquerdo::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -98px;
+
+  width: 140px;
+  height: 100%;
+
+  background: white;
+
+  transform: skewX(-12deg);
+}
+
+.logo {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #FFC107;
+}
+
+.qr-area {
+  z-index: 2;
+
+  background: white;
+
+  width: 310px;
+  height: 310px;
+
+  border-radius: 24px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 18px;
+
+  box-shadow: 0 20px 50px rgba(0,0,0,.35);
+}
+
+.qrcode-imagem {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.placeholder-qr {
+  width: 100%;
+  height: 100%;
+
+  border: 3px dashed #FFC107;
+  border-radius: 18px;
+
+  color: #FFC107;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 15px;
+}
+
+.loading {
+  color: #111;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.texto-qr {
+  margin-top: 35px;
+
+  width: 340px;
+
+  text-align: center;
+
+  color: rgba(255,255,255,.8);
+
+  line-height: 1.7;
+  z-index: 2;
+}
+
+/* ===========================
+   LADO DIREITO
+=========================== */
+
+.painel-direito {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 70px;
+}
+
+.conteudo {
+  width: 100%;
+  max-width: 620px;
+}
+
+.tag-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #FFF8E1;
+
+  color: #a16e00;
+
+  padding: 10px 18px;
+
+  border-radius: 30px;
+
+  font-weight: 600;
+
+  margin-bottom: 25px;
+}
+
+.conteudo h1 {
+  font-size: 3rem;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.descricao {
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 45px;
+}
+
+.conteudo label {
+  display: block;
+  margin-bottom: 12px;
+
+  color: #444;
+
+  font-weight: 600;
+}
+
+.codigo-pix {
+  display: flex;
+  gap: 15px;
+}
+
+.codigo-pix input {
+  flex: 1;
+
+  padding: 18px;
+
+  border: 2px solid #e6e6e6;
+
+  border-radius: 14px;
+
+  background: #fafafa;
+
+  font-size: .95rem;
+}
+
+.codigo-pix input:focus {
+  outline: none;
+  border-color: #FFC107;
+}
+
+.codigo-pix button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-width: 150px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #FFC107;
+
+  color: #222;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: .25s;
+}
+
+.codigo-pix button:hover {
+  background: #ffd54f;
+  transform: translateY(-2px);
+}
+
+.aviso {
+  margin-top: 40px;
+
+  padding: 25px;
+
+  background: #fafafa;
+
+  border-left: 6px solid #FFC107;
+
+  border-radius: 12px;
+}
+
+.aviso strong {
+  display: block;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.aviso p {
+  color: #666;
+  line-height: 1.7;
+}
+
+.erro-box {
+  padding: 25px;
+
+  background: #FFF2F2;
+
+  border-left: 5px solid #ff4d4d;
+
+  border-radius: 12px;
+}
+
+.erro-box p {
+  margin-bottom: 20px;
+}
+
+.erro-box button {
+  background: #FFC107;
+
+  border: none;
+
+  padding: 12px 24px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-weight: bold;
+}
+
+/* ===========================
+   RESPONSIVO
+=========================== */
+
+@media (max-width: 900px) {
+
+  .pagina-pagamento {
+    grid-template-columns: 1fr;
+  }
+
+  .painel-esquerdo {
+    padding: 40px;
+  }
+
+  .painel-esquerdo::after {
+    display: none;
+  }
+
+  .logo {
+    position: static;
+    margin-bottom: 40px;
+  }
+
+  .qr-area {
+    width: 240px;
+    height: 240px;
+  }
+
+  .texto-qr {
+    width: auto;
+    margin-bottom: 30px;
+  }
+
+  .painel-direito {
+    padding: 40px 25px;
+  }
+
+  .conteudo h1 {
+    font-size: 2rem;
+  }
+
+  .codigo-pix {
+    flex-direction: column;
+  }
+
+  .codigo-pix button {
+    width: 100%;
+    height: 55px;
+  }
+}

@@ -6,6 +6,10 @@ import { PaginaDeLogin } from "./Telas/Login/PaginaDeLogin";
 import { AdminLogin } from "./Telas/Login/AdmLogin/AdminLogin";
 import { DetalhesCliente } from "./Telas/DetalhesCliente/DetalhesCliente";
 import { AdminRoute } from "./components/AdminRoute";
+import { PaginaPagamento } from "./Telas/PaginaPagamento/PaginaPagamento";
+
+// dentro do <Routes>:
+
 
 export default function App() {
   return (
@@ -27,6 +31,7 @@ export default function App() {
         />
 
         <Route path="/cliente" element={<DetalhesCliente />} />
+        <Route path="/pagar/:idCobranca" element={<PaginaPagamento />} />
       </Routes>
     </BrowserRouter>
   );

@@ -29,13 +29,9 @@ def verificar_conexao() -> bool:
 
 
 def _formatar_telefone(telefone: str) -> str:
-    """
-    Garante o formato que a Z-API espera: DDI + DDD + número, só dígitos.
-    Ex: '(61) 99999-9999' -> '5561999999999'
-    """
+
     apenas_digitos = "".join(filter(str.isdigit, telefone))
 
-    # Se não vier com o DDI do Brasil (55), adiciona
     if not apenas_digitos.startswith("55"):
         apenas_digitos = "55" + apenas_digitos
 
@@ -54,23 +50,23 @@ class WhatsAppServiceZAPI:
         vencimento,
         pix_code: str | None,
         status: str,
+       id_cobranca: int, 
     ) -> bool:
         prefixo = "⚠️ ATRASADO — " if status == "ATRASADO" else ""
 
         mensagem = (
-        f"{prefixo}📢 *Lembrete de Pagamento – Facility*\n\n"
-        f"Olá, {nome}!\n\n"
-        f"Verificamos que, até o momento, o pagamento da sua "
-        f"parcela *{numero_parcela}/{qtd_parcelas}*, no valor de "
-        f"*R$ {valor:.2f}*, "
-        f"{'com vencimento em' if status != 'ATRASADO' else 'que venceu em'} "
-        f"*{vencimento.strftime('%d/%m/%Y')}*, ainda não foi identificado em nosso sistema.\n\n"
-        f"📢 Caso o pagamento já tenha sido realizado, por favor, desconsidere esta mensagem."
-    )
-
+            f"{prefixo}📢 *Lembrete de Pagamento – Facility*\n\n"
+            f"Olá, {nome}!\n\n"
+            f"{prefixo}Olá {nome}, "
+            f"sua parcela {numero_parcela}/{qtd_parcelas} "
+            f"de R$ {valor:.2f} "
+            f"{'venceu em' if status == 'ATRASADO' else 'vence em'} "
+            f"{vencimento.strftime('%d/%m/%Y')}."
+        )
 
         if pix_code:
-            mensagem += f"\n\nPague com Pix (copie e cole no app do seu banco):\n{pix_code}"
+            link_pagamento = f"{os.getenv('FRONTEND_URL')}/pagar/{id_cobranca}"
+            mensagem += f"\n\nPague com Pix, acesse:\n{link_pagamento}"
         else:
             mensagem += "\n\n(Não foi possível gerar o Pix automático — contate o suporte.)"
 
