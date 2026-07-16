@@ -13,7 +13,7 @@ Sistema de gestão financeira para operação de empréstimos, com controle de c
 |---|---|---|
 | Área do Cliente | `[https://facilitsolucoesfinanceiras.netlify.app/login]` | Login via CPF/CNPJ | Para teste: "369.258.147.00"
 | Painel Administrativo | `[https://facilitsolucoesfinanceiras.netlify.app/admin/login]` | Rota de acesso restrito |
-| Senha Admin | `[Facilit6220#]` | — |
+| Senha Admin | `` | — |
 
 
 
