@@ -1,12 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================
+   VARIÁVEIS / WRAPPER
+============================ */
+
 .clientes-wrapper {
+  --bg: #0a0a0a;
+  --panel: #121212;
+  --panel-border: #262019;
+  --yellow: #f4c10f;
+  --yellow-dim: #3a2f06;
+  --yellow-glow: rgba(244, 193, 15, 0.18);
+  --white: #f7f5ef;
+  --muted: #8f8b7f;
+
+  position: relative;
   width: 95%;
   margin: 30px auto;
-  background: #121212;
+
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
   padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  border: 1px solid #1f1e1e;
+
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.6);
+
+  font-family: 'Inter', system-ui, sans-serif;
 }
+
+/* cantos de "ficha", mesma assinatura da tela de login */
+.clientes-wrapper::before,
+.clientes-wrapper::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+}
+
+.clientes-wrapper::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--yellow);
+  border-left: 2px solid var(--yellow);
+}
+
+.clientes-wrapper::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--yellow);
+  border-right: 2px solid var(--yellow);
+}
+
+/* ============================
+   HEADER
+============================ */
 
 .clientes-header {
   display: flex;
@@ -20,17 +68,23 @@
 }
 
 .clientes-title {
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 28px;
-  font-weight: 600;
-  color: #f5f5f5;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--white);
   margin: 0 0 8px 0;
 }
 
 .clientes-description {
   font-size: 14px;
-  color: #a1a1aa;
+  color: var(--muted);
   margin: 0;
 }
+
+/* ============================
+   BUSCA
+============================ */
 
 .search-box {
   position: relative;
@@ -40,17 +94,27 @@
 .search-input {
   width: 100%;
   padding: 12px 40px 12px 16px;
-  border: 1px solid #292929;
-  border-radius: 8px;
-  font-size: 14px;
+
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+
+  color: var(--white);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+
   outline: none;
-  transition: border-color 0.3s;
-  background: transparent;
-  color: #f5f5f5;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input::placeholder {
+  color: #55524a;
+  font-family: 'Inter', sans-serif;
 }
 
 .search-input:focus {
-  border-color: #ffd40066;
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 3px var(--yellow-glow);
 }
 
 .search-icon {
@@ -59,62 +123,68 @@
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  font-size: 16px;
+  font-size: 14px;
+  opacity: 0.6;
 }
 
-/* --- container da tabela: uma única definição, sem duplicidade --- */
+/* ============================
+   TABELA
+============================ */
+
 .table-container {
   margin: 0 -30px -30px -30px;
   width: calc(100% + 60px);
   padding: 0 30px 30px 30px;
-  border-radius: 0 0 15px 15px;
+  border-radius: 0 0 4px 4px;
 
   display: flex;
   flex-direction: column;
-  max-height: 60vh; /* ajuste conforme o layout real */
+  max-height: 60vh;
 }
 
 .table-scroll {
   flex: 1;
-  min-height: 0; /* essencial: sem isso o flex item ignora overflow do filho */
+  min-height: 0;
   overflow-y: auto;
   overflow-x: auto;
 
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge legado */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .table-scroll::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge (Chromium) */
+  display: none;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* garante colunas consistentes e linhas sempre esticadas ponta a ponta */
+  table-layout: fixed;
 }
 
-/* --- cabeçalho no estilo da imagem: fundo escuro, texto claro uppercase --- */
 thead {
-  background-color: #121212;
+  background-color: var(--panel);
 }
 
 .table-scroll table thead th {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #121212; /* precisa bater com o fundo real, senão o conteúdo "passa por trás" ao rolar */
+  background: var(--panel);
 }
 
 th {
   padding: 16px 12px;
   text-align: left;
-  font-weight: 600;
-  color: #a1a1aa;
-  font-size: 12px;
+
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #232323;
+  letter-spacing: 0.08em;
+
+  border-bottom: 1px solid var(--panel-border);
   white-space: nowrap;
 }
 
@@ -122,12 +192,13 @@ td {
   padding: 16px 12px;
   text-align: left;
   font-size: 14px;
-  color: #e5e5e5;
+  color: #e5e5e0;
+  font-variant-numeric: tabular-nums;
 }
 
 tbody tr {
-  border-bottom: 1px solid #232323;
-  transition: background-color 0.2s;
+  border-bottom: 1px solid var(--panel-border);
+  transition: background-color 0.15s;
 }
 
 tbody tr:last-child {
@@ -138,6 +209,10 @@ tbody tr:hover {
   background-color: #1a1a1a;
 }
 
+/* ============================
+   RODAPÉ / PAGINAÇÃO
+============================ */
+
 .clientes-footer {
   flex-shrink: 0;
   display: flex;
@@ -146,12 +221,14 @@ tbody tr:hover {
   gap: 16px;
   flex-wrap: wrap;
   padding: 14px 20px;
-  border-top: 1px solid #232323;
+  border-top: 1px solid var(--panel-border);
 }
 
 .clientes-contagem {
-  font-size: 12px;
-  color: #8a8a8a;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.3px;
 }
 
 .clientes-paginacao {
@@ -164,21 +241,25 @@ tbody tr:hover {
 .btn-pagina-icon {
   min-width: 30px;
   height: 30px;
-  border-radius: 8px;
+  border-radius: 2px;
   border: none;
   background: none;
-  color: #8a8a8a;
+
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.15s, color 0.15s;
 }
 
 .btn-pagina:hover,
 .btn-pagina-icon:hover {
   background: #1a1a1a;
-  color: #f5f5f5;
+  color: var(--white);
 }
 
 .btn-pagina-icon:disabled {
@@ -187,8 +268,8 @@ tbody tr:hover {
 }
 
 .btn-pagina-ativa {
-  background: #f0c419;
-  color: #121212;
+  background: var(--yellow);
+  color: var(--bg);
   font-weight: 700;
 }
 
@@ -199,10 +280,38 @@ tbody tr:hover {
 }
 
 .select-por-pagina {
-  background: #1a1a1a;
-  border: 1px solid #262626;
-  color: #e5e5e5;
-  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+
+  color: #e5e5e0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
   padding: 6px 10px;
-  font-size: 12px;
+}
+
+/* ============================
+   RESPONSIVO
+============================ */
+
+@media (max-width: 768px) {
+  .clientes-wrapper {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .clientes-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .table-container {
+    margin: 0 -20px -20px -20px;
+    width: calc(100% + 40px);
+    padding: 0 20px 20px 20px;
+  }
 }

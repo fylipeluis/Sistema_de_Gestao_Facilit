@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ShieldCheck, Lock, ArrowRight } from "lucide-react";
 import { loginAdmin } from "../../../services/authService";
 import "../PaginaDeLogin.css";
 import "./AdminLogin.css";
@@ -16,7 +17,7 @@ export function AdminLogin() {
     setErro("");
 
     if (!usuario.trim() || !senha.trim()) {
-      setErro("Preencha usuário e senha");
+      setErro("Preencha usuário e senha.");
       return;
     }
 
@@ -32,11 +33,34 @@ export function AdminLogin() {
   }
 
   return (
-    <div className="login-page">
-      <div className="box-pagina-de-login">
-        <div className="admin-login-badge">🔐 Área Administrativa</div>
-        <h1>Acesso Restrito</h1>
-        <p>Insira suas credenciais para continuar.</p>
+    <main className="login-page login-page--admin">
+      <div className="login-backdrop" aria-hidden="true" />
+
+      <section className="login-card">
+        <span className="hazard-stripe" aria-hidden="true" />
+        <span className="card-corner card-corner--br" aria-hidden="true" />
+
+        <div className="login-mark">
+          <div className="mark-icon">
+            <Lock size={22} />
+          </div>
+
+          <div>
+            <span className="mark-title">FACILIT</span>
+            <span className="mark-sub">Painel Administrativo</span>
+          </div>
+        </div>
+
+        <div className="badge-login">
+          <ShieldCheck size={16} />
+          Acesso Restrito
+        </div>
+
+        <h2>Login administrativo</h2>
+
+        <p className="descricao-login">
+          Insira suas credenciais para continuar.
+        </p>
 
         {erro && <div className="erro-mensagem">{erro}</div>}
 
@@ -47,7 +71,10 @@ export function AdminLogin() {
             id="usuario"
             placeholder="admin"
             value={usuario}
-            onChange={(e) => { setUsuario(e.target.value); setErro(""); }}
+            onChange={(e) => {
+              setUsuario(e.target.value);
+              setErro("");
+            }}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
         </div>
@@ -59,7 +86,10 @@ export function AdminLogin() {
             id="senha"
             placeholder="••••••••"
             value={senha}
-            onChange={(e) => { setSenha(e.target.value); setErro(""); }}
+            onChange={(e) => {
+              setSenha(e.target.value);
+              setErro("");
+            }}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
         </div>
@@ -70,10 +100,13 @@ export function AdminLogin() {
           disabled={carregando}
         >
           {carregando ? "Entrando..." : "Entrar"}
+          {!carregando && <ArrowRight size={18} />}
         </button>
 
-        <div className="footer">Seus dados são protegidos 🔒</div>
-      </div>
-    </div>
+        <footer className="footer">
+          Seus dados são protegidos e criptografados.
+        </footer>
+      </section>
+    </main>
   );
 }

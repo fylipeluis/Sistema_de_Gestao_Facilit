@@ -1,143 +1,341 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================
+   VARIÁVEIS / BASE
+============================ */
+
 .login-page {
+  --bg: #0a0a0a;
+  --panel: #121212;
+  --panel-border: #262019;
+  --yellow: #f4c10f;
+  --yellow-dim: #3a2f06;
+  --yellow-glow: rgba(244, 193, 15, 0.18);
+  --white: #f7f5ef;
+  --muted: #8f8b7f;
+  --danger: #ff6b5e;
+  --danger-bg: #2a1512;
+
+  position: relative;
+  width: 100%;
   min-height: 100vh;
+  overflow: hidden;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #134cc8, #f07800eb);
+
+  padding: 24px;
+
+  background: var(--bg);
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
-.box-pagina-de-login {
-  background: #ffffff;
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 2rem;
-  width: 360px;
+/* ============================
+   FUNDO: GRADE + MARCA D'ÁGUA
+============================ */
+
+.login-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+
+  background-image:
+    linear-gradient(to right, rgba(244, 193, 15, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244, 193, 15, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.login-backdrop::after {
+  content: "FACILITY";
+  position: absolute;
+  left: -2%;
+  bottom: -10%;
+
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(120px, 22vw, 340px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  white-space: nowrap;
+
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(247, 245, 239, 0.045);
+}
+
+/* ============================
+   CARD
+============================ */
+
+.login-card {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 440px;
+
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 20px;
+
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 48px 40px 36px;
+
+  box-shadow: 0 40px 90px -24px rgba(0, 0, 0, 0.7);
 }
 
-.box-pagina-de-login h1 {
-  font-size: 22px;
-  font-weight: 600;
-  color: #0f172a;
-  margin: 0;
+.card-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
 }
 
-.box-pagina-de-login p {
-  font-size: 14px;
-  color: black;
-  margin: 0;
+.card-corner--tl {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--yellow);
+  border-left: 2px solid var(--yellow);
 }
 
-/* tabs */
-.tab-group {
+.card-corner--br {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--yellow);
+  border-right: 2px solid var(--yellow);
+}
+
+/* ============================
+   MARCA / LOGO
+============================ */
+
+.login-mark {
   display: flex;
-  background: #f1f5f9;
-  border-radius: 8px;
-  padding: 3px;
-  gap: 3px;
+  align-items: center;
+  gap: 14px;
 }
 
-.tab {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  background: transparent;
-  color: #64748b;
+.mark-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+
+  border-radius: 4px;
+  background: var(--yellow);
+
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  transition: all 0.15s ease;
+  color: var(--bg);
 }
 
-.tab.active {
-  background: #ffffff;
-  color: #0f172a;
-  font-weight: 500;
-  border: 1px solid #e2e8f0;
+.mark-title {
+  display: block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1;
+  color: var(--white);
 }
 
-.tab:not(.active):hover {
-  color: #0f172a;
+.mark-sub {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-/* campos */
+/* ============================
+   BADGE
+============================ */
+
+.badge-login {
+  align-self: flex-start;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  background: var(--yellow-dim);
+  color: var(--yellow);
+  border: 1px solid rgba(244, 193, 15, 0.3);
+
+  padding: 6px 14px;
+  border-radius: 2px;
+
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ============================
+   TÍTULO
+============================ */
+
+.login-card h2 {
+  margin: 0;
+  color: var(--white);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.descricao-login {
+  margin: -12px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ============================
+   ERRO
+============================ */
+
+.erro-mensagem {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-left: 3px solid var(--danger);
+
+  padding: 12px 14px;
+  border-radius: 2px;
+  font-size: 0.9rem;
+}
+
+/* ============================
+   INPUTS
+============================ */
+
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .input-group label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #0f172a;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .input-group input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #0f172a;
-  background: #ffffff;
-  box-sizing: border-box;
-  outline: none;
-  transition: border-color 0.15s ease;
+  height: 54px;
+
+  background: var(--bg);
+  color: var(--white);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+
+  padding: 0 16px;
+
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input-group input::placeholder {
-  color: #94a3b8;
+  color: #55524a;
 }
 
 .input-group input:focus {
-  border-color: #185fa5;
-  box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.12);
+  outline: none;
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 3px var(--yellow-glow);
 }
 
-/* botão principal */
+/* ============================
+   BOTÃO
+============================ */
+
 .btn-primary {
-  width: 100%;
-  padding: 11px;
-  background: #185fa5;
-  color: #ffffff;
+  margin-top: 4px;
+  height: 54px;
+
   border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
+  border-radius: 2px;
+  background: var(--yellow);
+  color: var(--bg);
+
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .btn-primary:hover {
-  background: #0c447c;
+  background: #ffd54f;
+  box-shadow: 0 8px 24px -8px var(--yellow-glow);
+  transform: translateY(-2px);
 }
 
 .btn-primary:active {
   transform: scale(0.98);
 }
 
-/* rodapé */
-.footer {
-  font-size: 12px;
-  color: #000000;
-  text-align: center;
+.btn-primary:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
 }
 
-/* Mensagem de erro */
-.erro-mensagem {
-  padding: 12px;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  color: #7f1d1d;
-  font-size: 13px;
+/* ============================
+   RODAPÉ
+============================ */
+
+.footer {
+  margin-top: 6px;
+  padding-top: 16px;
+
+  border-top: 1px solid var(--panel-border);
+
   text-align: center;
-  font-weight: 500;
+  color: var(--muted);
+
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.3px;
+}
+
+/* ============================
+   RESPONSIVO
+============================ */
+
+@media (max-width: 600px) {
+  .login-page {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 36px 24px 28px;
+    gap: 16px;
+  }
+
+  .mark-title {
+    font-size: 1.3rem;
+  }
+
+  .login-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .login-backdrop::after {
+    font-size: clamp(90px, 34vw, 200px);
+  }
 }
