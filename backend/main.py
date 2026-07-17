@@ -8,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from backend.routers import clientes, faturas, auth
 from backend.routers.auth import verificar_token
 from backend.routers import clientes, faturas, auth, webhooks
+from zoneinfo import ZoneInfo
 
 
 load_dotenv()
@@ -16,6 +17,11 @@ logging.basicConfig(level=logging.INFO)
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 scheduler = BackgroundScheduler()
+
+
+scheduler = BackgroundScheduler(
+    timezone=ZoneInfo("America/Sao_Paulo")
+)
 
 
 @asynccontextmanager
