@@ -1,10 +1,35 @@
-.admin-login-badge {
-  background-color: #1e3a5f;
-  color: white;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  display: inline-block;
-  margin-bottom: 12px;
+.login-page--admin .login-backdrop::after {
+  content: "ADMIN";
+}
+
+.hazard-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+
+  background: repeating-linear-gradient(
+    135deg,
+    var(--yellow) 0 10px,
+    var(--bg) 10px 20px
+  );
+
+  border-radius: 4px 4px 0 0;
+}
+
+.login-page--admin .login-card {
+  padding-top: 44px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary:disabled:hover {
+  background: var(--yellow);
+  box-shadow: none;
+  transform: none;
 }
