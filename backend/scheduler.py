@@ -55,7 +55,7 @@ def inativar_clientes_concluidos():
                 SELECT 1 FROM cobrancas co
                 WHERE co.id_cliente = c.id_cliente
                 AND co.status IN ('PENDENTE', 'ATRASADO')
-              )
+            )
             """
         )
         clientes = cursor.fetchall()
@@ -110,7 +110,13 @@ def buscar_parcelas_do_dia():
             WHERE
                 cl.status_cliente = 'ATIVO'
                 AND co.status IN ('PENDENTE', 'ATRASADO')
-                AND (co.ultima_mensagem IS NULL OR DATE(co.ultima_mensagem) < CURDATE())
+                AND (
+                    co.ultima_mensagem IS NULL OR
+                    DATE(co.ultima_mensagem) < CURDATE() OR
+                    co.pix_code IS NULL OR
+                    co.pix_expira_em IS NULL OR
+                    co.pix_expira_em < dt.utcnow()
+                )
                 AND co.data_vencimento <= CURDATE()
             GROUP BY co.id_cobranca
             ORDER BY co.data_vencimento ASC

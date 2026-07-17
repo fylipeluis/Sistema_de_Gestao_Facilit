@@ -37,7 +37,7 @@ export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInat
     try {
       setPagando(idCobranca);
       const resultado = await marcarParcelaPaga(idCobranca) as ResultadoPagamento;
-      
+
       // Se o cliente foi inativado, avisa o componente pai
       if (resultado?.cliente_inativado) {
         onClienteInativado?.();
@@ -56,10 +56,10 @@ export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInat
 
   function getStatusClass(status: string): string {
     switch (status?.toUpperCase()) {
-      case "PAGO":      return "status-parcela pago";
-      case "ATRASADO":  return "status-parcela atrasado";
-      case "CANCELADO": return "status-parcela cancelado";
-      default:          return "status-parcela pendente";
+      case "PAGO":      return "contratos-modal__status contratos-modal__status--pago";
+      case "ATRASADO":  return "contratos-modal__status contratos-modal__status--atrasado";
+      case "CANCELADO": return "contratos-modal__status contratos-modal__status--cancelado";
+      default:          return "contratos-modal__status contratos-modal__status--pendente";
     }
   }
 
@@ -84,33 +84,33 @@ export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInat
   if (!clienteId) return null;
 
   return (
-    <div className="modal-contratos">
-      <div className="modal-content-contratos">
-        <div className="modal-header-contratos">
+    <div className="contratos-modal-overlay">
+      <div className="contratos-modal">
+        <div className="contratos-modal__header">
           <h2>Contratos{nomeCliente ? ` — ${nomeCliente}` : ""}</h2>
-          <span className="fechar-contratos" onClick={onFechar}>✕</span>
+          <span className="contratos-modal__fechar" onClick={onFechar}>✕</span>
         </div>
 
-        {carregando && <p className="carregando">Carregando contratos...</p>}
-        {erro && <p className="erro">{erro}</p>}
+        {carregando && <p className="contratos-modal__estado">Carregando contratos...</p>}
+        {erro && <p className="contratos-modal__erro">{erro}</p>}
         {!carregando && contratos.length === 0 && (
-          <p className="sem-contratos">Nenhum contrato encontrado.</p>
+          <p className="contratos-modal__vazio">Nenhum contrato encontrado.</p>
         )}
 
         {!carregando &&
           contratos.map((contrato) => (
-            <div key={contrato.id_fatura} className="contrato-card">
-              <div className="contrato-header">
+            <div key={contrato.id_fatura} className="contratos-modal__card">
+              <div className="contratos-modal__card-header">
                 <h3>Contrato #{contrato.id_fatura}</h3>
-                <div className="contrato-info">
+                <div className="contratos-modal__card-info">
                   <span><strong>Valor Total:</strong> R$ {contrato.valor_emprestimo.toFixed(2)}</span>
                   <span><strong>Parcelas:</strong> {contrato.qtd_parcelas}</span>
                   <span><strong>Início:</strong> {formatarData(contrato.inicio_cobranca)}</span>
                 </div>
               </div>
 
-              <div className="parcelas-container">
-                <table className="tabela-parcelas">
+              <div className="contratos-modal__tabela-wrap">
+                <table className="contratos-modal__tabela">
                   <thead>
                     <tr>
                       <th>Parcela</th>
@@ -135,9 +135,9 @@ export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInat
                         </td>
                         <td>
                           {parcela.status?.toUpperCase() !== "PAGO" &&
-                           parcela.status?.toUpperCase() !== "CANCELADO" && (
+                          parcela.status?.toUpperCase() !== "CANCELADO" && (
                             <button
-                              className="btn-pagar"
+                              className="contratos-modal__btn-pagar"
                               onClick={() => handlePagar(parcela.id_cobranca)}
                               disabled={pagando === parcela.id_cobranca}
                             >
