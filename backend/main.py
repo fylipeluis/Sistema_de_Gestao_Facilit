@@ -73,3 +73,24 @@ def disparar_rotina_manual(request: Request):
     from backend.scheduler import rotina_diaria
     rotina_diaria()
     return {"status": "ok", "mensagem": "Rotina executada"}
+
+@app.post("/api/admin/rotina-22h", tags=["admin"])
+def disparar_rotina_22h_manual(request: Request):
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not verificar_token(token):
+        raise HTTPException(status_code=401, detail="Não autorizado")
+
+    from backend.scheduler import rotina_22h
+    rotina_22h()
+    return {"status": "ok", "mensagem": "Rotina 22h executada"}
+
+
+@app.post("/api/admin/rotina-00h", tags=["admin"])
+def disparar_rotina_00h_manual(request: Request):
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not verificar_token(token):
+        raise HTTPException(status_code=401, detail="Não autorizado")
+
+    from backend.scheduler import rotina_00h
+    rotina_00h()
+    return {"status": "ok", "mensagem": "Rotina 00h executada"}

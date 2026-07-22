@@ -35,7 +35,7 @@ export function LinhaCliente({
       setExcluindo(false);
       setConfirmando(false);
     }
-  }
+  }     
 
   return (
     <tr>
