@@ -12,10 +12,7 @@ HORAS_EXPIRACAO_PIX = 24
 
 
 def gerar_pix(id_cobranca: int, valor: float, descricao: str) -> dict:
-    """
-    Gera um pagamento Pix via Mercado Pago.
-    Retorna qr_code, qr_code_base64, payment_id e data de expiração.
-    """
+
     data_expiracao = datetime.utcnow() + timedelta(hours=HORAS_EXPIRACAO_PIX)
 
     payment_data = {

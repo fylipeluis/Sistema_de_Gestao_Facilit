@@ -29,9 +29,13 @@ def verificar_conexao() -> bool:
 
 
 def _formatar_telefone(telefone: str) -> str:
-
+    """
+    Garante o formato que a Z-API espera: DDI + DDD + número, só dígitos.
+    Ex: '(61) 99999-9999' -> '5561999999999'
+    """
     apenas_digitos = "".join(filter(str.isdigit, telefone))
 
+    # Se não vier com o DDI do Brasil (55), adiciona
     if not apenas_digitos.startswith("55"):
         apenas_digitos = "55" + apenas_digitos
 
@@ -50,13 +54,11 @@ class WhatsAppServiceZAPI:
         vencimento,
         pix_code: str | None,
         status: str,
-       id_cobranca: int, 
+        id_cobranca: int,
     ) -> bool:
         prefixo = "⚠️ ATRASADO — " if status == "ATRASADO" else ""
 
         mensagem = (
-            f"{prefixo}📢 *Lembrete de Pagamento – Facility*\n\n"
-            f"Olá, {nome}!\n\n"
             f"{prefixo}Olá {nome}, "
             f"sua parcela {numero_parcela}/{qtd_parcelas} "
             f"de R$ {valor:.2f} "
@@ -70,6 +72,24 @@ class WhatsAppServiceZAPI:
         else:
             mensagem += "\n\n(Não foi possível gerar o Pix automático — contate o suporte.)"
 
+        return self._enviar_texto(telefone, mensagem)
+
+    def enviar_aviso_atraso_22h(
+        self,
+        telefone: str,
+        nome: str,
+        numero_parcela: int,
+        qtd_parcelas: int,
+        novo_valor: float,
+        id_cobranca: int,
+    ) -> bool:
+        link_pagamento = f"{os.getenv('FRONTEND_URL')}/pagar/{id_cobranca}"
+        mensagem = (
+            f"⚠️ Olá {nome}, sua parcela {numero_parcela}/{qtd_parcelas} venceu hoje e ainda não foi paga.\n\n"
+            f"Foi adicionado um acréscimo de R$ 12,00. Novo valor: R$ {novo_valor:.2f}.\n\n"
+            f"Se não for paga até meia-noite, um novo acréscimo de R$ 12,00 será aplicado.\n\n"
+            f"Pague agora com Pix, acesse:\n{link_pagamento}"
+        )
         return self._enviar_texto(telefone, mensagem)
 
     def _enviar_texto(self, telefone: str, mensagem: str) -> bool:
