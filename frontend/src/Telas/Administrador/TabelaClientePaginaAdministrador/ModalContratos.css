@@ -26,6 +26,43 @@
 
   font-family: 'Inter', system-ui, sans-serif;
 }
+/* ================= DADOS DO CLIENTE ================= */
+
+.contratos-modal__dados-cliente {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin: 12px 0 20px;
+  padding: 12px 18px;
+
+  background: #343537;
+  border: 1px solid #3f3f40;
+  border-radius: 10px;
+}
+
+.contratos-modal__dados-cliente span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 14px;
+  color: #fbf9f9;
+}
+
+.contratos-modal__dados-cliente strong {
+  color: var(--yellow);
+  font-weight: 600;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .contratos-modal__dados-cliente {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
 
 .contratos-modal {
   position: relative;
