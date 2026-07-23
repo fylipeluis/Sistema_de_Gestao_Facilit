@@ -47,3 +47,17 @@ export async function ativarClienteComFatura(
   if (!response.ok) throw new Error("Erro ao ativar cliente com fatura");
   return response.json();
 }
+
+export interface ClienteDetalhe {
+  id_cliente: number;
+  nome_completo: string;
+  documento: string;
+  telefone: string;
+  status_cliente: "ATIVO" | "INATIVO" | "PENDENTE";
+}
+
+export async function fetchClienteDetalhe(id: number): Promise<ClienteDetalhe> {
+  const response = await fetch(`${BASE_URL}/${id}`);
+  if (!response.ok) throw new Error("Erro ao buscar detalhes do cliente");
+  return response.json();
+}

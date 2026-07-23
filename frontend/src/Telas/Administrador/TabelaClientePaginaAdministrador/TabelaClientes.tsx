@@ -72,9 +72,10 @@ export default function TabelaClientes() {
             <thead>
               <tr>
                 <th>Nome</th>
-                <th>CPF</th>
-                <th>Telefone</th>
                 <th>Status</th>
+                <th>Valor Emp.</th>
+                <th>Em Aberto</th>
+                <th>Parcelas</th>
                 <th>Ações</th>
               </tr>
             </thead>
