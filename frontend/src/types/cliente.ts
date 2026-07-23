@@ -2,19 +2,19 @@
 export interface Cliente {
   id_cliente: number;
   nome_completo: string;
-  status_cliente: StatusCliente;
-
+  status_cliente: "ATIVO" | "INATIVO" | "PENDENTE";
   valor_emprestado: number;
   valor_em_aberto: number;
   parcelas_em_aberto: number;
 }
 
-// Dados completos de um cliente
-// Utilizado em telas de detalhes e no modal de contratos
-export interface ClienteDetalhes extends Cliente {
+
+export interface ClienteDetalhes {
+  id_cliente: number;
   nome_completo: string;
   documento: string;
   telefone: string;
+  status_cliente: "ATIVO" | "INATIVO" | "PENDENTE";
 }
 
 // Dados enviados ao editar um cliente

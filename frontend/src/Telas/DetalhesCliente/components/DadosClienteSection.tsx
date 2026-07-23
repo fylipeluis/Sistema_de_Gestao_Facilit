@@ -1,8 +1,8 @@
-import type { Cliente } from "../../../types/cliente";
+import type { ClienteDetalhes } from "../../../types/cliente";
 import { getStatusClass } from "../utils/statusUtils";
 
 interface DadosClienteSectionProps {
-  cliente: Cliente;
+  cliente: ClienteDetalhes;
 }
 
 export function DadosClienteSection({ cliente }: DadosClienteSectionProps) {

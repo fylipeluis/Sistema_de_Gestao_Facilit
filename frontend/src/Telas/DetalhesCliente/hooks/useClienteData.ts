@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ClienteDetalhes } from "../../../types/cliente";
 import type { Fatura } from "../../../types/fatura";
-import { fetchClientePorDocumento, fetchClientes } from "../../../api/clienteApi";
+import { fetchClientePorDocumento} from "../../../api/clienteApi";
 import { fetchContratosPorCliente } from "../../../api/faturaApi";
 
 export function useClienteData() {
@@ -29,7 +29,7 @@ export function useClienteData() {
 
       const clienteEncontrado = await fetchClientePorDocumento(cpf);
 
-      setCliente(clienteEncontrado);
+    setCliente(clienteEncontrado);
 
       const faturasCliente = await fetchContratosPorCliente(
         clienteEncontrado.id_cliente,
