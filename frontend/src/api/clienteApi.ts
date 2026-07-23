@@ -1,4 +1,4 @@
-import type { ClienteDetalhes, ClienteUpdatePayload } from "../types/cliente";
+import type {ClienteDetalhes, ClienteUpdatePayload } from "../types/cliente";
 
 const BASE_URL = `${import.meta.env.VITE_API_URL ?? "https://facilitsolucoesfinanceiras1-production.up.railway.app"}/api/clientes`;
 
@@ -62,15 +62,7 @@ export async function ativarClienteComFatura(
   return response.json();
 }
 
-export interface ClienteDetalhe {
-  id_cliente: number;
-  nome_completo: string;
-  documento: string;
-  telefone: string;
-  status_cliente: "ATIVO" | "INATIVO" | "PENDENTE";
-}
-
-export async function fetchClienteDetalhe(id: number): Promise<ClienteDetalhe> {
+export async function fetchClienteDetalhe(id: number): Promise<ClienteDetalhes> {
   const response = await fetch(`${BASE_URL}/${id}`);
   if (!response.ok) throw new Error("Erro ao buscar detalhes do cliente");
   return response.json();
