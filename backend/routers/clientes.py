@@ -38,16 +38,31 @@ def listar_clientes():
         cursor.execute(
             """
             SELECT
-                c.id_cliente,
-                c.nome_completo,
-                c.status_cliente,
-                COALESCE(SUM(f.valor_emprestimo), 0) AS valor_emprestado,
-                COALESCE(SUM(CASE WHEN co.status IN ('PENDENTE', 'ATRASADO') THEN co.valor_cobranca ELSE 0 END), 0) AS valor_em_aberto,
-                COUNT(DISTINCT CASE WHEN co.status IN ('PENDENTE', 'ATRASADO') THEN co.id_cobranca END) AS parcelas_em_aberto
-            FROM clientes c
-            LEFT JOIN adm_faturas f ON f.id_cliente = c.id_cliente
-            LEFT JOIN cobrancas co ON co.id_fatura = f.id_fatura
-            GROUP BY c.id_cliente, c.nome_completo, c.status_cliente
+                    c.id_cliente,
+                    c.nome_completo,
+                    c.status_cliente,
+
+                    (
+                        SELECT COALESCE(SUM(f.valor_emprestimo),0)
+                        FROM adm_faturas f
+                        WHERE f.id_cliente = c.id_cliente
+                    ) AS valor_emprestado,
+
+                    (
+                        SELECT COALESCE(SUM(co.valor_cobranca),0)
+                        FROM cobrancas co
+                        WHERE co.id_cliente = c.id_cliente
+                        AND co.status IN ('PENDENTE','ATRASADO')
+                    ) AS valor_em_aberto,
+
+                    (
+                        SELECT COUNT(*)
+                        FROM cobrancas co
+                        WHERE co.id_cliente = c.id_cliente
+                        AND co.status IN ('PENDENTE','ATRASADO')
+                    ) AS parcelas_em_aberto
+
+            FROM clientes c;
             """
         )
         return cursor.fetchall()
