@@ -22,6 +22,7 @@ export interface ClienteUpdatePayload {
   nome_completo: string;
   documento: string;
   telefone: string;
+
 }
 
 // Dados enviados ao criar um cliente

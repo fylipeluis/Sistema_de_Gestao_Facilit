@@ -1,11 +1,25 @@
-import type { Cliente, ClienteUpdatePayload } from "../types/cliente";
+import type { ClienteDetalhes, ClienteUpdatePayload } from "../types/cliente";
 
 const BASE_URL = `${import.meta.env.VITE_API_URL ?? "https://facilitsolucoesfinanceiras1-production.up.railway.app"}/api/clientes`;
 
-export async function fetchClientes(): Promise<Cliente[]> {
+export async function fetchClientes(): Promise<ClienteDetalhes[]> {
   const response = await fetch(`${BASE_URL}/`);
   if (!response.ok)
     throw new Error("Erro na requisição: " + response.statusText);
+  return response.json();
+}
+
+export async function fetchClientePorDocumento(
+  documento: string
+): Promise<ClienteDetalhes> {
+  const response = await fetch(
+    `${BASE_URL}/documento/${encodeURIComponent(documento)}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar cliente");
+  }
+
   return response.json();
 }
 
