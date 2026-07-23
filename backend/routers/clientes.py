@@ -195,8 +195,17 @@ def ativar_cliente_com_fatura(id: int, dados: ClienteAtivarComFatura):
             (id, dados.valor_emprestimo, dados.qtd_parcelas, dados.inicio_cobranca),
         )
         id_fatura = cursor.lastrowid
+        
+        valor_total = dados.valor_emprestimo
 
-        valor_parcela = round(dados.valor_emprestimo / dados.qtd_parcelas, 2)
+        if dados.taxa_juros is not None:
+            valor_total = (
+            dados.valor_emprestimo *
+            (1 + (dados.taxa_juros / 100) * dados.qtd_parcelas)
+        )
+            
+        valor_parcela = round(valor_total / dados.qtd_parcelas, 2)
+        
         for i in range(1, dados.qtd_parcelas + 1):
             data_vencimento = dados.inicio_cobranca + timedelta(days=i - 1)
 
