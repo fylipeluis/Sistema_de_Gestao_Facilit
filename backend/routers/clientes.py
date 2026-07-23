@@ -41,7 +41,7 @@ def listar_clientes():
                 c.id_cliente,
                 c.nome_completo,
                 c.status_cliente,
-                COALESCE(SUM(f.valor_total), 0) AS valor_emprestado,
+                COALESCE(SUM(f.valor_emprestimo), 0) AS valor_emprestado,
                 COALESCE(SUM(CASE WHEN co.status IN ('PENDENTE', 'ATRASADO') THEN co.valor_cobranca ELSE 0 END), 0) AS valor_em_aberto,
                 COUNT(DISTINCT CASE WHEN co.status IN ('PENDENTE', 'ATRASADO') THEN co.id_cobranca END) AS parcelas_em_aberto
             FROM clientes c
