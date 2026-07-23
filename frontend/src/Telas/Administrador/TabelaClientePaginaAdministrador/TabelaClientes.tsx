@@ -4,8 +4,9 @@ import { useClientes } from "../../../hooks/useClientes";
 import { LinhaCliente } from "./LinhaCliente";
 import { ModalEditarCliente } from "./ModalEditarClientes";
 import { ModalContratos } from "./ModalContratos";
-import type { Cliente } from "../../../types/cliente";
+import type { Cliente, ClienteDetalhes } from "../../../types/cliente";
 import "./TabelaClientes.css";
+import { fetchClienteDetalhe } from "../../../api/clienteApi";
 
 const OPCOES_POR_PAGINA = [10, 20, 50];
 
@@ -18,11 +19,20 @@ function getPaginas(atual: number, total: number): (number | "...")[] {
 
 export default function TabelaClientes() {
   const { clientes, loading, erro, excluir, atualizar, ativar } = useClientes();
-  const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
+  const [clienteEditando, setClienteEditando] = useState<ClienteDetalhes | null>(null);
   const [clienteContratos, setClienteContratos] = useState<number | null>(null);
   const [termoPesquisa, setTermoPesquisa] = useState("");
   const [pagina, setPagina] = useState(1);
   const [porPagina, setPorPagina] = useState(10);
+
+  async function abrirEdicao(cliente: Cliente) {
+  try {
+  const detalhes = await fetchClienteDetalhe(cliente.id_cliente);
+    setClienteEditando(detalhes);
+  } catch {
+    alert("Erro ao carregar dados do cliente");
+  }
+}
 
   const clientesFiltrados = ordenarClientes(
     filtrarClientes(clientes, termoPesquisa),
@@ -72,9 +82,10 @@ export default function TabelaClientes() {
             <thead>
               <tr>
                 <th>Nome</th>
-                <th>CPF</th>
-                <th>Telefone</th>
                 <th>Status</th>
+                <th>Valor Emp.</th>
+                <th>Em Aberto</th>
+                <th>Parcelas</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -84,7 +95,7 @@ export default function TabelaClientes() {
                   key={cliente.id_cliente}
                   cliente={cliente}
                   onExcluir={excluir}
-                  onEditar={() => setClienteEditando(cliente)}
+                  onEditar={() => abrirEdicao(cliente)}
                   onVerContratos={() => setClienteContratos(cliente.id_cliente)}
                 />
               ))}

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Cliente } from "../../../types/cliente";
+import type { ClienteDetalhes } from "../../../types/cliente";
 import type { Fatura } from "../../../types/fatura";
-import { fetchClientes } from "../../../api/clienteApi";
+import { fetchClientePorDocumento} from "../../../api/clienteApi";
 import { fetchContratosPorCliente } from "../../../api/faturaApi";
 
 export function useClienteData() {
   const navigate = useNavigate();
-  const [cliente, setCliente] = useState<Cliente | null>(null);
+  const [cliente, setCliente] = useState<ClienteDetalhes | null>(null);
   const [faturas, setFaturas] = useState<Fatura[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -27,15 +27,9 @@ export function useClienteData() {
       setCarregando(true);
       setErro(null);
 
-      const clientes = await fetchClientes();
-      const clienteEncontrado = clientes.find((c) => c.documento === cpf);
+      const clienteEncontrado = await fetchClientePorDocumento(cpf);
 
-      if (!clienteEncontrado) {
-        setErro("Cliente não encontrado");
-        return;
-      }
-
-      setCliente(clienteEncontrado);
+    setCliente(clienteEncontrado);
 
       const faturasCliente = await fetchContratosPorCliente(
         clienteEncontrado.id_cliente,

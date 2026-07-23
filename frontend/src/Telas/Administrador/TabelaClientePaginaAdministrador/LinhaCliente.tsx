@@ -40,14 +40,19 @@ export function LinhaCliente({
   return (
     <tr>
       <td>{cliente.nome_completo}</td>
-      <td>{cliente.documento}</td>
-      <td>{cliente.telefone}</td>
-
       <td>
         <span className={getStatusClass(cliente.status_cliente)}>
           {cliente.status_cliente}
         </span>
       </td>
+      <td>
+        {(cliente.valor_emprestado ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+      </td>
+      <td>
+        {(cliente.valor_em_aberto ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+      </td>
+      <td>{cliente.parcelas_em_aberto ?? 0}</td>
+
 
       <td className="btn-actions">
         {confirmando ? (

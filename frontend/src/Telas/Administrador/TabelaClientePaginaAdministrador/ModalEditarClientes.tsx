@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { type AtivarClientePayload } from "../../../api/clienteApi";
-import type { Cliente, ClienteUpdatePayload } from "../../../types/cliente";
+import type { ClienteDetalhes, ClienteUpdatePayload } from "../../../types/cliente";
+
 import "./ModalEditarClientes.css";
 
 interface Props {
-  cliente: Cliente | null;
+  cliente: ClienteDetalhes | null;
   onSalvar: (id: number, dados: ClienteUpdatePayload) => Promise<void>;
   onAtivar: (id: number, dados: AtivarClientePayload) => Promise<void>;
   onFechar: () => void;
@@ -20,7 +21,6 @@ export function ModalEditarCliente({
     nome_completo: "",
     documento: "",
     telefone: "",
-    status_cliente: "PENDENTE",
   });
 
   const [formFatura, setFormFatura] = useState<AtivarClientePayload>({

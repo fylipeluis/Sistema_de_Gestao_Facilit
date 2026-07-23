@@ -20,7 +20,7 @@ export function ResumoSectionAdm() {
               Total Emprestado
             </span>
 
-            <h2 className="resumo-valor destaque-amarelo">
+            <h2 className="valor-resumo destaque-amarelo">
               {(resumo.total_emprestado ?? 0).toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
@@ -44,7 +44,7 @@ export function ResumoSectionAdm() {
               Cobranças de Hoje
             </span>
 
-            <h2 className="resumo-valor">
+            <h2 className="valor-resumo">
               {resumo.cobrancas_hoje ?? 0}
             </h2>
 
@@ -65,7 +65,7 @@ export function ResumoSectionAdm() {
               Valor em Aberto
             </span>
 
-            <h2 className="resumo-valor destaque-vermelho">
+            <h2 className="valor-resumo destaque-vermelho">
               {(resumo.valor_em_aberto ?? 0).toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",

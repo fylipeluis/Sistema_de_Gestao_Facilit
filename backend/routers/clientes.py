@@ -35,7 +35,21 @@ def listar_clientes():
     try:
         connection = conectar()
         cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM clientes")
+        cursor.execute(
+            """
+            SELECT
+                c.id_cliente,
+                c.nome_completo,
+                c.status_cliente,
+                COALESCE(SUM(f.valor_total), 0) AS valor_emprestado,
+                COALESCE(SUM(CASE WHEN co.status IN ('PENDENTE', 'ATRASADO') THEN co.valor_cobranca ELSE 0 END), 0) AS valor_em_aberto,
+                COUNT(DISTINCT CASE WHEN co.status IN ('PENDENTE', 'ATRASADO') THEN co.id_cobranca END) AS parcelas_em_aberto
+            FROM clientes c
+            LEFT JOIN adm_faturas f ON f.id_cliente = c.id_cliente
+            LEFT JOIN cobrancas co ON co.id_fatura = f.id_fatura
+            GROUP BY c.id_cliente, c.nome_completo, c.status_cliente
+            """
+        )
         return cursor.fetchall()
     except Error as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -44,6 +58,69 @@ def listar_clientes():
             cursor.close()
             connection.close()
 
+@router.get("/documento/{documento}")
+def obter_cliente_por_documento(documento: str):
+    connection = None
+    cursor = None
+    try:
+        connection = conectar()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT
+                id_cliente,
+                nome_completo,
+                documento,
+                telefone,
+                status_cliente
+            FROM clientes
+            WHERE documento = %s
+            LIMIT 1
+            """,
+            (documento,),
+        )
+
+        cliente = cursor.fetchone()
+
+        if not cliente:
+            raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
+        return cliente
+
+    except Error as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+@router.get("/{id}")
+def obter_cliente(id: int):
+    """Detalhe do cliente, incluindo CPF/telefone -- usado só pelo modal de contratos."""
+    connection = None
+    cursor = None
+    try:
+        connection = conectar()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT id_cliente, nome_completo, documento, telefone, status_cliente FROM clientes WHERE id_cliente = %s",
+            (id,),
+        )
+        cliente = cursor.fetchone()
+
+        if not cliente:
+            raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
+        return cliente
+    except Error as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
 
 @router.put("/{id}")
 def atualizar_cliente(id: int, dados: ClienteUpdate):
@@ -147,3 +224,4 @@ def ativar_cliente_com_fatura(id: int, dados: ClienteAtivarComFatura):
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
+            

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import type { Fatura, Cobranca, ResultadoPagamento } from "../../../types/fatura";
 import { fetchContratosPorCliente, marcarParcelaPaga } from "../../../api/faturaApi";
+import { fetchClienteDetalhe } from "../../../api/clienteApi";
+import type { ClienteDetalhes } from "../../../types/cliente";
 import "./ModalContratos.css";
 
 interface Props {
@@ -12,12 +14,16 @@ interface Props {
 
 export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInativado }: Props) {
   const [contratos, setContratos] = useState<Fatura[]>([]);
+  const [detalheCliente, setDetalheCliente] = useState<ClienteDetalhes | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [pagando, setPagando] = useState<number | null>(null); // id_cobranca sendo pago
 
   useEffect(() => {
-    if (clienteId) carregarContratos();
+    if (clienteId) {
+      carregarContratos();
+      carregarDetalheCliente();
+    }
   }, [clienteId]);
 
   async function carregarContratos() {
@@ -30,6 +36,17 @@ export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInat
       setErro("Erro ao carregar contratos");
     } finally {
       setCarregando(false);
+    }
+  }
+
+  async function carregarDetalheCliente() {
+    try {
+      const dados = await fetchClienteDetalhe(clienteId!);
+      setDetalheCliente(dados);
+    } catch {
+      // Não bloqueia a exibição dos contratos se isso falhar --
+      // CPF/telefone são informação complementar, não essencial pra tela funcionar.
+      setDetalheCliente(null);
     }
   }
 
@@ -90,6 +107,13 @@ export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInat
           <h2>Contratos{nomeCliente ? ` — ${nomeCliente}` : ""}</h2>
           <span className="contratos-modal__fechar" onClick={onFechar}>✕</span>
         </div>
+
+        {detalheCliente && (
+          <div className="contratos-modal__dados-cliente">
+            <span><strong>CPF:</strong> {detalheCliente.documento}</span>
+            <span><strong>Telefone:</strong> {detalheCliente.telefone}</span>
+          </div>
+        )}
 
         {carregando && <p className="contratos-modal__estado">Carregando contratos...</p>}
         {erro && <p className="contratos-modal__erro">{erro}</p>}
