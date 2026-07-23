@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import type { Fatura, Cobranca, ResultadoPagamento } from "../../../types/fatura";
 import { fetchContratosPorCliente, marcarParcelaPaga } from "../../../api/faturaApi";
-import { fetchClienteDetalhe, type ClienteDetalhe } from "../../../api/clienteApi";
+import { fetchClienteDetalhe } from "../../../api/clienteApi";
+import type { ClienteDetalhes } from "../../../types/cliente";
 import "./ModalContratos.css";
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 
 export function ModalContratos({ clienteId, nomeCliente, onFechar, onClienteInativado }: Props) {
   const [contratos, setContratos] = useState<Fatura[]>([]);
-  const [detalheCliente, setDetalheCliente] = useState<ClienteDetalhe | null>(null);
+  const [detalheCliente, setDetalheCliente] = useState<ClienteDetalhes | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [pagando, setPagando] = useState<number | null>(null); // id_cobranca sendo pago
